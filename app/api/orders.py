@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.database import get_db
+from app.core.config import settings
 from app.core.dependencies import (
     get_current_user,
     get_current_active_customer,
@@ -77,7 +78,7 @@ def create_order(
         )
 
     # Calculate tax and total
-    tax = subtotal * 0.08  # 8% tax
+    tax = subtotal * settings.TAX_RATE
     total_amount = subtotal + restaurant.delivery_fee + tax
 
     # Create order
@@ -166,7 +167,7 @@ def get_order(
         )
     elif current_user.role == UserRole.RESTAURANT_OWNER:
         restaurant = db.query(Restaurant).filter(Restaurant.id == order.restaurant_id).first()
-        if restaurant.owner_id != current_user.id:
+        if not restaurant or restaurant.owner_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to view this order"
@@ -235,7 +236,7 @@ def update_order_status(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Not authorized to update this order"
                 )
-            order.delivered_at = datetime.utcnow()
+            order.delivered_at = datetime.now(timezone.utc)
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -263,7 +264,7 @@ def update_order_status(
     # Update order status
     order.status = order_update.status
     if order_update.status == OrderStatus.CONFIRMED and order.confirmed_at is None:
-        order.confirmed_at = datetime.utcnow()
+        order.confirmed_at = datetime.now(timezone.utc)
 
     db.commit()
     db.refresh(order)

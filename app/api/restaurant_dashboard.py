@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_restaurant_owner
 from app.models.user import User
@@ -79,7 +79,7 @@ def get_restaurant_stats(
     ).scalar() or 0
 
     # Recent revenue (last 30 days)
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
     revenue_30d = db.query(func.sum(Order.total_amount)).filter(
         and_(
             Order.restaurant_id.in_(restaurant_ids),
@@ -150,7 +150,7 @@ def get_single_restaurant_stats(
         orders_by_status[status_enum.value] = count
 
     # Daily revenue (last 7 days)
-    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
     daily_revenue = db.query(
         func.date(Order.created_at).label('date'),
         func.sum(Order.total_amount).label('revenue'),

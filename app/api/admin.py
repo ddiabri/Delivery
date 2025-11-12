@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.core.database import get_db
 from app.core.dependencies import get_current_active_admin
 from app.models.user import User, UserRole
@@ -41,7 +41,7 @@ def get_overview_stats(
         orders_by_status[status.value] = count
 
     # Recent stats (last 30 days)
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
     new_users_30d = db.query(func.count(User.id)).filter(User.created_at >= thirty_days_ago).scalar()
     new_orders_30d = db.query(func.count(Order.id)).filter(Order.created_at >= thirty_days_ago).scalar()
     revenue_30d = db.query(func.sum(Order.total_amount)).filter(
@@ -91,7 +91,7 @@ def get_revenue_stats(
     current_user: User = Depends(get_current_active_admin)
 ):
     """Get revenue statistics over time"""
-    start_date = datetime.utcnow() - timedelta(days=days)
+    start_date = datetime.now(timezone.utc) - timedelta(days=days)
 
     # Daily revenue
     daily_revenue = db.query(

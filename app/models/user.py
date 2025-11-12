@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
 from app.core.database import Base
+from app.core.utils import get_utc_now
 
 
 class UserRole(str, enum.Enum):
@@ -28,8 +29,8 @@ class User(Base):
     longitude = Column(Float, nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=get_utc_now)
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now)
 
     # Relationships
     owned_restaurants = relationship("Restaurant", back_populates="owner", foreign_keys="Restaurant.owner_id")

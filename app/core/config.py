@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Tax rate (default 8%)
+    TAX_RATE: float = 0.08
+
     class Config:
         env_file = ".env"
         case_sensitive = True

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Foreig
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.core.database import Base
+from app.core.utils import get_utc_now
 
 
 class Restaurant(Base):
@@ -34,8 +35,8 @@ class Restaurant(Base):
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=get_utc_now)
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now)
 
     # Relationships
     owner = relationship("User", back_populates="owned_restaurants", foreign_keys=[owner_id])

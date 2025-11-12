@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from app.models.order import OrderStatus
@@ -6,7 +6,7 @@ from app.models.order import OrderStatus
 
 class OrderItemCreate(BaseModel):
     menu_item_id: int
-    quantity: int
+    quantity: int = Field(..., gt=0, description="Quantity must be greater than 0")
     special_instructions: Optional[str] = None
 
 

@@ -22,12 +22,12 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Relationships
-    customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
-    driver_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    customer_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False, index=True)
+    driver_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Order details
-    status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False)
+    status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False, index=True)
     subtotal = Column(Float, nullable=False)
     delivery_fee = Column(Float, nullable=False)
     tax = Column(Float, default=0.0)
@@ -40,7 +40,7 @@ class Order(Base):
     delivery_instructions = Column(Text, nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime, default=get_utc_now)
+    created_at = Column(DateTime, default=get_utc_now, index=True)
     confirmed_at = Column(DateTime, nullable=True)
     delivered_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now)
@@ -56,8 +56,8 @@ class OrderItem(Base):
     __tablename__ = "order_items"
 
     id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
-    menu_item_id = Column(Integer, ForeignKey("menu_items.id"), nullable=False)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False, index=True)
+    menu_item_id = Column(Integer, ForeignKey("menu_items.id"), nullable=False, index=True)
 
     quantity = Column(Integer, nullable=False, default=1)
     price = Column(Float, nullable=False)  # Price at time of order

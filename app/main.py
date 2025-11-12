@@ -2,53 +2,88 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.core.database import engine, Base
+from app.core.config import settings
+from app.core.logging_config import setup_logging, get_logger
 from app.api import auth, restaurants, menu_items, orders, reviews, admin, restaurant_dashboard
+
+# Setup logging
+setup_logging()
+logger = get_logger(__name__)
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
+logger.info("Database tables created/verified")
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Food Delivery API",
     description="A comprehensive backend system for food delivery applications",
-    version="1.0.0"
+    version=f"{settings.API_VERSION}.0.0",
+    docs_url=f"/api/{settings.API_VERSION}/docs",
+    redoc_url=f"/api/{settings.API_VERSION}/redoc",
+    openapi_url=f"/api/{settings.API_VERSION}/openapi.json"
 )
 
-# Configure CORS
+# Configure CORS with environment-based origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+logger.info(f"CORS configured for environment: {settings.ENVIRONMENT}")
+logger.info(f"Allowed origins: {settings.CORS_ORIGINS}")
+
 # Mount static files for admin and restaurant panels
 app.mount("/admin", StaticFiles(directory="static/admin", html=True), name="admin")
 app.mount("/restaurant", StaticFiles(directory="static/restaurant", html=True), name="restaurant")
+logger.info("Static files mounted for admin and restaurant panels")
 
-# Include routers
-app.include_router(auth.router, prefix="/api")
-app.include_router(restaurants.router, prefix="/api")
-app.include_router(menu_items.router, prefix="/api")
-app.include_router(orders.router, prefix="/api")
-app.include_router(reviews.router, prefix="/api")
-app.include_router(admin.router, prefix="/api")
-app.include_router(restaurant_dashboard.router, prefix="/api")
+# Include routers with API versioning
+api_prefix = f"/api/{settings.API_VERSION}"
+app.include_router(auth.router, prefix=api_prefix)
+app.include_router(restaurants.router, prefix=api_prefix)
+app.include_router(menu_items.router, prefix=api_prefix)
+app.include_router(orders.router, prefix=api_prefix)
+app.include_router(reviews.router, prefix=api_prefix)
+app.include_router(admin.router, prefix=api_prefix)
+app.include_router(restaurant_dashboard.router, prefix=api_prefix)
+logger.info(f"API routers registered with prefix: {api_prefix}")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Application startup"""
+    logger.info(f"🚀 Food Delivery API starting - Environment: {settings.ENVIRONMENT}")
+    logger.info(f"📚 API Documentation: /api/{settings.API_VERSION}/docs")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Application shutdown"""
+    logger.info("🛑 Food Delivery API shutting down")
 
 
 @app.get("/")
 def root():
     """Root endpoint"""
+    logger.info("Root endpoint accessed")
     return {
         "message": "Welcome to Food Delivery API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "redoc": "/redoc"
+        "version": f"{settings.API_VERSION}.0.0",
+        "environment": settings.ENVIRONMENT,
+        "docs": f"/api/{settings.API_VERSION}/docs",
+        "redoc": f"/api/{settings.API_VERSION}/redoc"
     }
 
 
 @app.get("/health")
 def health_check():
     """Health check endpoint"""
-    return {"status": "healthy"}
+    return {
+        "status": "healthy",
+        "version": f"{settings.API_VERSION}.0.0",
+        "environment": settings.ENVIRONMENT
+    }

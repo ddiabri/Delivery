@@ -6,18 +6,23 @@ from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token
 from app.core.config import settings
 from app.core.dependencies import get_current_user
+from app.core.logging_config import get_logger
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse, Token
 
+logger = get_logger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """Register a new user"""
+    logger.info(f"Registration attempt for email: {user_data.email}")
+
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
+        logger.warning(f"Registration failed - email already exists: {user_data.email}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
@@ -40,6 +45,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
+    logger.info(f"User registered successfully: {new_user.email} (ID: {new_user.id}, Role: {new_user.role})")
     return new_user
 
 
@@ -49,9 +55,12 @@ def login(
     db: Session = Depends(get_db)
 ):
     """Login and get access token"""
+    logger.info(f"Login attempt for email: {form_data.username}")
+
     # Authenticate user
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
+        logger.warning(f"Failed login attempt for email: {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -64,6 +73,7 @@ def login(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
 
+    logger.info(f"User logged in successfully: {user.email} (ID: {user.id}, Role: {user.role})")
     return {"access_token": access_token, "token_type": "bearer"}
 
 

@@ -4,6 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from app.core.database import get_db
 from app.core.config import settings
+from app.core.logging_config import get_logger
 from app.core.dependencies import (
     get_current_user,
     get_current_active_customer,
@@ -16,6 +17,7 @@ from app.models.menu_item import MenuItem
 from app.models.restaurant import Restaurant
 from app.schemas.order import OrderCreate, OrderUpdate, OrderResponse
 
+logger = get_logger(__name__)
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
@@ -107,6 +109,10 @@ def create_order(
     db.commit()
     db.refresh(new_order)
 
+    logger.info(
+        f"Order created - ID: {new_order.id}, Customer: {current_user.id}, "
+        f"Restaurant: {restaurant.id}, Total: ${total_amount:.2f}, Items: {len(order_items)}"
+    )
     return new_order
 
 
@@ -262,6 +268,7 @@ def update_order_status(
             )
 
     # Update order status
+    old_status = order.status
     order.status = order_update.status
     if order_update.status == OrderStatus.CONFIRMED and order.confirmed_at is None:
         order.confirmed_at = datetime.now(timezone.utc)
@@ -269,6 +276,10 @@ def update_order_status(
     db.commit()
     db.refresh(order)
 
+    logger.info(
+        f"Order status updated - ID: {order.id}, "
+        f"Status: {old_status} -> {order.status}, User: {current_user.id} ({current_user.role})"
+    )
     return order
 
 

@@ -10,6 +10,7 @@ A comprehensive backend system for food delivery applications built with FastAPI
 - **Order Management**: Full order lifecycle from placement to delivery
 - **Delivery Tracking**: Order status tracking and driver assignment
 - **Review System**: Customer reviews and ratings for restaurants
+- **Admin Panel**: Web-based admin interface with dashboard and management tools
 - **JWT Authentication**: Secure authentication with JWT tokens
 - **Role-Based Access Control**: Different permissions for different user types
 - **Location-Based Services**: Distance calculation for restaurant search
@@ -71,6 +72,30 @@ uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`
+
+## Admin Panel
+
+Access the admin panel at `http://localhost:8000/admin`
+
+### Admin Panel Features
+
+- **Dashboard**: Overview statistics including total users, restaurants, orders, and revenue
+- **User Management**: View, filter, and manage all users by role
+- **Restaurant Management**: Activate/deactivate and delete restaurants
+- **Order Management**: View all orders with status filtering and management
+- **Review Management**: Monitor and moderate customer reviews
+- **Analytics**: Revenue tracking, order statistics, and top-performing restaurants
+
+### Admin Login
+
+To access the admin panel, you need an account with the `admin` role:
+
+1. Register a new user through the API
+2. Update their role to `admin` in the database:
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'your-admin@example.com';
+```
+3. Login to the admin panel at `http://localhost:8000/admin`
 
 ## API Documentation
 

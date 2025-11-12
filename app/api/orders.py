@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.logging_config import get_logger
+from app.core.websocket_manager import manager
 from app.core.dependencies import (
     get_current_user,
     get_current_active_customer,
@@ -18,11 +21,34 @@ from app.models.restaurant import Restaurant
 from app.schemas.order import OrderCreate, OrderUpdate, OrderResponse
 
 logger = get_logger(__name__)
+limiter = Limiter(key_func=get_remote_address)
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
+def order_to_dict(order: Order) -> dict:
+    """Convert order object to dictionary for WebSocket"""
+    return {
+        "id": order.id,
+        "customer_id": order.customer_id,
+        "restaurant_id": order.restaurant_id,
+        "driver_id": order.driver_id,
+        "status": order.status.value,
+        "subtotal": order.subtotal,
+        "delivery_fee": order.delivery_fee,
+        "tax": order.tax,
+        "total_amount": order.total_amount,
+        "delivery_address": order.delivery_address,
+        "created_at": order.created_at.isoformat() if order.created_at else None,
+        "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None,
+        "delivered_at": order.delivered_at.isoformat() if order.delivered_at else None,
+    }
+
+
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
-def create_order(
+@limiter.limit("10/minute")
+async def create_order(
+    request: Request,
+    background_tasks: BackgroundTasks,
     order_data: OrderCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_customer)
@@ -113,6 +139,10 @@ def create_order(
         f"Order created - ID: {new_order.id}, Customer: {current_user.id}, "
         f"Restaurant: {restaurant.id}, Total: ${total_amount:.2f}, Items: {len(order_items)}"
     )
+
+    # Send WebSocket notification in background
+    background_tasks.add_task(manager.notify_order_update, order_to_dict(new_order))
+
     return new_order
 
 
@@ -190,8 +220,9 @@ def get_order(
 
 
 @router.put("/{order_id}", response_model=OrderResponse)
-def update_order_status(
+async def update_order_status(
     order_id: int,
+    background_tasks: BackgroundTasks,
     order_update: OrderUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -280,12 +311,17 @@ def update_order_status(
         f"Order status updated - ID: {order.id}, "
         f"Status: {old_status} -> {order.status}, User: {current_user.id} ({current_user.role})"
     )
+
+    # Send WebSocket notification in background
+    background_tasks.add_task(manager.notify_order_update, order_to_dict(order))
+
     return order
 
 
 @router.post("/{order_id}/assign", response_model=OrderResponse)
-def assign_driver_to_order(
+async def assign_driver_to_order(
     order_id: int,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_driver)
 ):
@@ -312,5 +348,8 @@ def assign_driver_to_order(
     order.driver_id = current_user.id
     db.commit()
     db.refresh(order)
+
+    # Send WebSocket notification in background
+    background_tasks.add_task(manager.notify_order_update, order_to_dict(order))
 
     return order

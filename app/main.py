@@ -1,14 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from app.core.database import engine, Base
 from app.core.config import settings
 from app.core.logging_config import setup_logging, get_logger
-from app.api import auth, restaurants, menu_items, orders, reviews, admin, restaurant_dashboard
+from app.api import auth, restaurants, menu_items, orders, reviews, admin, restaurant_dashboard, websocket
 
 # Setup logging
 setup_logging()
 logger = get_logger(__name__)
+
+# Setup rate limiting
+limiter = Limiter(key_func=get_remote_address)
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -23,6 +29,10 @@ app = FastAPI(
     redoc_url=f"/api/{settings.API_VERSION}/redoc",
     openapi_url=f"/api/{settings.API_VERSION}/openapi.json"
 )
+
+# Add rate limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configure CORS with environment-based origins
 app.add_middleware(
@@ -50,6 +60,7 @@ app.include_router(orders.router, prefix=api_prefix)
 app.include_router(reviews.router, prefix=api_prefix)
 app.include_router(admin.router, prefix=api_prefix)
 app.include_router(restaurant_dashboard.router, prefix=api_prefix)
+app.include_router(websocket.router, prefix=api_prefix)
 logger.info(f"API routers registered with prefix: {api_prefix}")
 
 
@@ -58,6 +69,8 @@ async def startup_event():
     """Application startup"""
     logger.info(f"🚀 Food Delivery API starting - Environment: {settings.ENVIRONMENT}")
     logger.info(f"📚 API Documentation: /api/{settings.API_VERSION}/docs")
+    logger.info("🛡️  Rate limiting enabled")
+    logger.info("🔌 WebSocket support enabled for real-time order updates")
 
 
 @app.on_event("shutdown")

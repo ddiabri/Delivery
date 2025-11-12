@@ -11,6 +11,7 @@ A comprehensive backend system for food delivery applications built with FastAPI
 - **Delivery Tracking**: Order status tracking and driver assignment
 - **Review System**: Customer reviews and ratings for restaurants
 - **Admin Panel**: Web-based admin interface with dashboard and management tools
+- **Restaurant Dashboard**: Dedicated dashboard for restaurant owners to manage their business
 - **JWT Authentication**: Secure authentication with JWT tokens
 - **Role-Based Access Control**: Different permissions for different user types
 - **Location-Based Services**: Distance calculation for restaurant search
@@ -96,6 +97,64 @@ To access the admin panel, you need an account with the `admin` role:
 UPDATE users SET role = 'admin' WHERE email = 'your-admin@example.com';
 ```
 3. Login to the admin panel at `http://localhost:8000/admin`
+
+## Restaurant Dashboard
+
+Access the restaurant dashboard at `http://localhost:8000/restaurant`
+
+### Restaurant Dashboard Features
+
+- **Dashboard**: Comprehensive statistics for your restaurants
+  - Total orders, revenue, and ratings
+  - Pending and active orders count
+  - 30-day performance metrics
+  - Top-selling menu items (per restaurant)
+- **Order Management**: Real-time order tracking and status updates
+  - View all incoming orders
+  - Confirm, prepare, and mark orders as ready
+  - Filter by order status
+  - Update order status with one click
+- **Menu Management**: Full menu item control
+  - Add new menu items with detailed information
+  - Edit existing items (price, availability, description)
+  - Mark items as vegetarian/vegan
+  - Enable/disable item availability
+  - Delete menu items
+- **Review Monitoring**: View all customer reviews and ratings
+  - See customer feedback
+  - Monitor restaurant ratings
+  - Track review trends
+- **Restaurant Profile**: View and manage restaurant details
+  - Business information
+  - Delivery settings
+  - Operating status
+
+### Restaurant Dashboard Login
+
+To access the restaurant dashboard, you need an account with the `restaurant_owner` role:
+
+1. Register a new user through the API with role `restaurant_owner`:
+```bash
+curl -X POST "http://localhost:8000/api/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "owner@restaurant.com",
+    "password": "password123",
+    "full_name": "Restaurant Owner",
+    "role": "restaurant_owner"
+  }'
+```
+
+2. Create a restaurant for this owner through the API
+3. Login to the restaurant dashboard at `http://localhost:8000/restaurant`
+
+### Multi-Restaurant Support
+
+If you own multiple restaurants, you can:
+- View combined statistics across all restaurants
+- Switch between restaurants using the dropdown selector
+- Manage each restaurant independently
+- Track performance of individual locations
 
 ## API Documentation
 

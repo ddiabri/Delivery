@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.core.database import engine, Base
-from app.api import auth, restaurants, menu_items, orders, reviews, admin
+from app.api import auth, restaurants, menu_items, orders, reviews, admin, restaurant_dashboard
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -23,8 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files for admin panel
+# Mount static files for admin and restaurant panels
 app.mount("/admin", StaticFiles(directory="static/admin", html=True), name="admin")
+app.mount("/restaurant", StaticFiles(directory="static/restaurant", html=True), name="restaurant")
 
 # Include routers
 app.include_router(auth.router, prefix="/api")
@@ -33,6 +34,7 @@ app.include_router(menu_items.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(restaurant_dashboard.router, prefix="/api")
 
 
 @app.get("/")

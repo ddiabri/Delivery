@@ -70,6 +70,7 @@ const createTables = async (client) => {
         address TEXT,
         location GEOGRAPHY(POINT, 4326),
         profile_image_url TEXT,
+        average_rating DECIMAL(3, 2) DEFAULT 0,
         is_active BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

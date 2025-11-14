@@ -368,6 +368,29 @@
   cursor: not-allowed;
 }
 
+.btn-rate-delivery {
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-rate-delivery:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-rate-delivery:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .completed-badge {
   background-color: #d4edda;
   border: 2px solid #c3e6cb;

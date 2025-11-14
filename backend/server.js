@@ -14,6 +14,7 @@ import { testConnection, initializeDatabase } from './src/config/database.js';
 import authRoutes from './src/routes/authRoutes.js';
 import deliveryRoutes from './src/routes/deliveryRoutes.js';
 import driverRoutes from './src/routes/driverRoutes.js';
+import reviewRoutes from './src/routes/reviewRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 
 // Load environment variables
@@ -77,6 +78,7 @@ app.get('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/drivers', driverRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers

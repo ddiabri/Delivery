@@ -122,4 +122,18 @@ export const userAPI = {
   },
 };
 
+export const reviewAPI = {
+  createReview: (data) => apiClient.post('/reviews', data),
+  getDeliveryReviews: (deliveryId) =>
+    apiClient.get(`/reviews/delivery/${deliveryId}`),
+  getDriverReviews: (driverId) =>
+    apiClient.get(`/reviews/driver/${driverId}`),
+  getCurrentDriverReviews: () =>
+    apiClient.get('/reviews/driver/me'),
+  updateReview: (id, data) =>
+    apiClient.put(`/reviews/${id}`, data),
+  deleteReview: (id) =>
+    apiClient.delete(`/reviews/${id}`),
+};
+
 export default apiClient;

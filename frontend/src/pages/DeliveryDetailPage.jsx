@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { useDelivery } from '../context/deliveryContext';
-import { getSocket } from '../services/api';
+import { getSocket, reviewAPI } from '../services/api';
+import RatingForm from '../components/RatingForm';
+import ReviewsList from '../components/ReviewsList';
+import DriverRating from '../components/DriverRating';
 import '../styles/deliveryDetail.css';
 
 export default function DeliveryDetailPage() {
@@ -13,12 +16,38 @@ export default function DeliveryDetailPage() {
   const [driverLocation, setDriverLocation] = useState(null);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [showRatingForm, setShowRatingForm] = useState(false);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
 
   const socket = getSocket();
 
   useEffect(() => {
     fetchDeliveryById(id);
+    fetchReviews();
   }, [id]);
+
+  const fetchReviews = async () => {
+    setLoadingReviews(true);
+    try {
+      const response = await reviewAPI.getDeliveryReviews(id);
+      const reviewsList = response.data.data || response.data || [];
+      setReviews(reviewsList);
+
+      // Check if current user has already reviewed
+      if (user?.id) {
+        const hasReviewed = reviewsList.some(
+          (review) => review.customer_id === user.id
+        );
+        setUserHasReviewed(hasReviewed);
+      }
+    } catch (err) {
+      console.error('Failed to fetch reviews:', err);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
 
   // Listen for driver location updates
   useEffect(() => {
@@ -235,6 +264,35 @@ export default function DeliveryDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Driver Rating (Customer View) */}
+            {isCustomer && currentDelivery.driver_id && (
+              <div className="card">
+                <h2>⭐ Driver Rating</h2>
+                <DriverRating
+                  driverId={currentDelivery.driver_id}
+                  driverName={currentDelivery.driver_name}
+                />
+              </div>
+            )}
+
+            {/* Reviews Section */}
+            {currentDelivery.status === 'DELIVERED' && (
+              <div className="card">
+                <h2>💬 Reviews</h2>
+                {loadingReviews ? (
+                  <p style={{ color: '#999', fontSize: '14px' }}>Loading reviews...</p>
+                ) : (
+                  <ReviewsList
+                    reviews={reviews}
+                    deliveryId={id}
+                    currentUserId={user?.id}
+                    onReviewDeleted={() => fetchReviews()}
+                    onReviewUpdated={() => fetchReviews()}
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Column */}
@@ -312,9 +370,35 @@ export default function DeliveryDetailPage() {
                 ✓ Delivery Completed
               </div>
             )}
+
+            {/* Rate Delivery Button (Customer) */}
+            {isCustomer && currentDelivery.status === 'DELIVERED' && !userHasReviewed && (
+              <div className="action-button">
+                <button
+                  className="btn-rate-delivery"
+                  onClick={() => setShowRatingForm(true)}
+                >
+                  ⭐ Leave a Review
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Rating Form Modal */}
+      {showRatingForm && isCustomer && currentDelivery.status === 'DELIVERED' && (
+        <RatingForm
+          deliveryId={id}
+          driverId={currentDelivery.driver_id}
+          driverName={currentDelivery.driver_name}
+          onClose={() => setShowRatingForm(false)}
+          onSuccess={() => {
+            setShowRatingForm(false);
+            fetchReviews();
+          }}
+        />
+      )}
     </div>
   );
 }

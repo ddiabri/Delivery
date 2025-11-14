@@ -28,11 +28,13 @@ import AdminBulkMessagingPage from './pages/AdminBulkMessagingPage';
 import AdminPromotionBannersPage from './pages/AdminPromotionBannersPage';
 import AdminRateLimitingPage from './pages/AdminRateLimitingPage';
 import WalletPage from './pages/WalletPage';
+import OfflineIndicator from './components/OfflineIndicator';
 import './App.css';
 
 function App() {
   return (
     <Router>
+      <OfflineIndicator />
       <AuthProvider>
         <DeliveryProvider>
           <Routes>

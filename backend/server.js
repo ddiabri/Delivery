@@ -9,6 +9,13 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Import database and routes
+import { testConnection, initializeDatabase } from './src/config/database.js';
+import authRoutes from './src/routes/authRoutes.js';
+import deliveryRoutes from './src/routes/deliveryRoutes.js';
+import driverRoutes from './src/routes/driverRoutes.js';
+import { errorHandler } from './src/middleware/authMiddleware.js';
+
 // Load environment variables
 dotenv.config();
 
@@ -21,7 +28,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.CORS_ORIGIN || '*',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT'],
     credentials: true
   },
   transports: ['websocket', 'polling']
@@ -55,73 +62,157 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes placeholder
+// API routes
 app.get('/api', (req, res) => {
-  res.json({ message: 'Delivery App API' });
+  res.json({
+    message: 'Delivery App API v1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      deliveries: '/api/deliveries',
+      drivers: '/api/drivers'
+    }
+  });
 });
 
+app.use('/api/auth', authRoutes);
+app.use('/api/deliveries', deliveryRoutes);
+app.use('/api/drivers', driverRoutes);
+
 // WebSocket connection handling
+const connectedDrivers = new Map(); // Track connected drivers
+
 io.on('connection', (socket) => {
   console.log(`[Socket.IO] New client connected: ${socket.id}`);
 
   // Driver location updates
   socket.on('driver:location', (data) => {
-    // Broadcast driver location to relevant clients
-    socket.broadcast.emit('driver:location:update', data);
+    const { driverId, latitude, longitude, bearing, speed } = data;
+
+    // Store driver connection
+    connectedDrivers.set(driverId, {
+      socketId: socket.id,
+      latitude,
+      longitude,
+      bearing,
+      speed,
+      timestamp: new Date()
+    });
+
+    // Broadcast to all connected clients (customers, other drivers, admin)
+    io.emit('driver:location:update', {
+      driverId,
+      latitude,
+      longitude,
+      bearing,
+      speed,
+      timestamp: new Date()
+    });
+
+    console.log(`[Socket.IO] Driver ${driverId} location updated`);
   });
 
-  // Order status updates
-  socket.on('order:status', (data) => {
-    io.to(`order:${data.orderId}`).emit('order:status:update', data);
+  // Delivery status updates
+  socket.on('delivery:status:update', (data) => {
+    const { deliveryId, status, driverId } = data;
+
+    // Broadcast to delivery room
+    io.to(`delivery:${deliveryId}`).emit('delivery:status:changed', {
+      deliveryId,
+      status,
+      driverId,
+      timestamp: new Date()
+    });
+
+    console.log(`[Socket.IO] Delivery ${deliveryId} status: ${status}`);
   });
 
-  // Join order room for real-time updates
-  socket.on('join:order', (orderId) => {
-    socket.join(`order:${orderId}`);
-    console.log(`[Socket.IO] User joined order room: order:${orderId}`);
+  // Join delivery room for real-time updates
+  socket.on('join:delivery', (deliveryId) => {
+    socket.join(`delivery:${deliveryId}`);
+    console.log(`[Socket.IO] Socket ${socket.id} joined delivery room: delivery:${deliveryId}`);
   });
 
-  // Leave order room
-  socket.on('leave:order', (orderId) => {
-    socket.leave(`order:${orderId}`);
-    console.log(`[Socket.IO] User left order room: order:${orderId}`);
+  // Leave delivery room
+  socket.on('leave:delivery', (deliveryId) => {
+    socket.leave(`delivery:${deliveryId}`);
+    console.log(`[Socket.IO] Socket ${socket.id} left delivery room: delivery:${deliveryId}`);
   });
 
-  // Driver availability
-  socket.on('driver:available', (data) => {
-    socket.broadcast.emit('driver:available:update', data);
+  // Driver availability toggle
+  socket.on('driver:toggle:availability', (data) => {
+    const { driverId, available } = data;
+    io.emit('driver:availability:changed', {
+      driverId,
+      available,
+      timestamp: new Date()
+    });
+    console.log(`[Socket.IO] Driver ${driverId} availability: ${available}`);
+  });
+
+  // Request driver location (for tracking)
+  socket.on('request:driver:location', (driverId) => {
+    const driver = connectedDrivers.get(driverId);
+    if (driver) {
+      socket.emit('driver:location:current', {
+        driverId,
+        ...driver
+      });
+    }
   });
 
   // Disconnect handler
   socket.on('disconnect', () => {
-    console.log(`[Socket.IO] Client disconnected: ${socket.id}`);
+    // Remove driver from connected drivers
+    for (const [driverId, driver] of connectedDrivers.entries()) {
+      if (driver.socketId === socket.id) {
+        connectedDrivers.delete(driverId);
+        io.emit('driver:disconnected', { driverId });
+        console.log(`[Socket.IO] Driver ${driverId} disconnected`);
+      }
+    }
+    console.log(`[Socket.IO] Socket ${socket.id} disconnected`);
+  });
+
+  // Error handling
+  socket.on('error', (error) => {
+    console.error(`[Socket.IO] Error from ${socket.id}:`, error);
   });
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || 'Internal Server Error',
-      status: err.status || 500
-    }
-  });
-});
+app.use(errorHandler);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({
+    error: 'Route not found',
+    code: 'NOT_FOUND'
+  });
 });
 
 // Start server
 const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
-  console.log(`\n🚀 Delivery App Backend Server`);
-  console.log(`   Running on: http://localhost:${PORT}`);
-  console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`   WebSocket: ws://localhost:${PORT}`);
-  console.log('\n✅ Server is ready to accept connections\n`);
-});
+
+// Initialize database and start server
+(async () => {
+  try {
+    const connected = await testConnection();
+    if (connected) {
+      await initializeDatabase();
+    }
+
+    httpServer.listen(PORT, () => {
+      console.log(`\n🚀 Delivery App Backend Server`);
+      console.log(`   Running on: http://localhost:${PORT}`);
+      console.log(`   API: http://localhost:${PORT}/api`);
+      console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`   WebSocket: ws://localhost:${PORT}`);
+      console.log('\n✅ Server is ready to accept connections\n`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
+})();
 
 export { app, io };

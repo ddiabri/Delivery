@@ -1,5 +1,5 @@
 import axios from 'axios';
-import io from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
@@ -84,6 +84,8 @@ export const authAPI = {
   login: (data) => apiClient.post('/auth/login', data),
   logout: () => apiClient.post('/auth/logout'),
   getCurrentUser: () => apiClient.get('/auth/me'),
+  updateProfile: (data) => apiClient.put('/auth/profile', data),
+  refreshToken: (token) => apiClient.post('/auth/refresh', { refreshToken: token }),
 };
 
 export const deliveryAPI = {

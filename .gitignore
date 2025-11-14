@@ -1,3 +1,51 @@
+# Node.js & npm
+node_modules/
+npm-debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.npm
+.eslintcache
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+frontend/dist/
+backend/build/
+
+# Database
+*.sqlite
+*.sqlite3
+delivery_db
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python files (legacy)
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,13 +56,15 @@ venv/
 ENV/
 .venv
 *.egg-info/
-dist/
-build/
-.env
-.DS_Store
-.idea/
-.vscode/
-*.log
-*.db
-*.sqlite3
-logs/
+
+# Google Cloud
+gcp-key.json
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Test coverage
+coverage/
+.nyc_output/

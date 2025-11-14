@@ -1,405 +1,393 @@
-# Food Delivery Backend API
+# On-Demand Mail and Package Delivery Platform
 
-A comprehensive backend system for food delivery applications built with FastAPI, PostgreSQL, and SQLAlchemy.
+A comprehensive fullstack application for managing on-demand mail and package deliveries. Features real-time driver tracking, live status updates, and a multi-platform interface for customers, drivers, and administrators.
 
-## Features
+## 🚀 Technology Stack
 
-- **User Management**: Support for multiple user roles (Customer, Restaurant Owner, Delivery Driver, Admin)
-- **Restaurant Management**: CRUD operations for restaurants with location-based filtering
-- **Menu Management**: Complete menu item management with categories and dietary options
-- **Order Management**: Full order lifecycle from placement to delivery
-- **Delivery Tracking**: Order status tracking and driver assignment
-- **Review System**: Customer reviews and ratings for restaurants
-- **Admin Panel**: Web-based admin interface with dashboard and management tools
-- **Restaurant Dashboard**: Dedicated dashboard for restaurant owners to manage their business
-- **JWT Authentication**: Secure authentication with JWT tokens
-- **Role-Based Access Control**: Different permissions for different user types
-- **Location-Based Services**: Distance calculation for restaurant search
-
-## Tech Stack
-
-- **Framework**: FastAPI
-- **Database**: PostgreSQL
-- **ORM**: SQLAlchemy
+- **Frontend**: React 19 + Vite + Socket.IO client
+- **Backend**: Node.js + Express.js + Socket.IO
+- **Database**: PostgreSQL with PostGIS (geospatial queries)
+- **Real-time Communication**: Socket.IO (WebSockets)
+- **Maps**: Mapbox GL + Google Maps API
+- **State Management**: Zustand
 - **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: bcrypt
-- **Geolocation**: geopy
+- **Cloud Platform**: Google Cloud (optional)
 
-## Installation
+## 📋 Project Structure
 
-### Prerequisites
+```
+Delivery/
+├── backend/                    # Node.js/Express backend
+│   ├── src/
+│   │   ├── config/            # Database and environment config
+│   │   ├── routes/            # API routes
+│   │   ├── controllers/       # Business logic
+│   │   ├── models/            # Data models
+│   │   ├── middleware/        # Custom middleware
+│   │   └── utils/             # Utility functions
+│   ├── server.js              # Main server file
+│   ├── package.json
+│   └── .env.example
+├── frontend/                   # React frontend
+│   ├── src/
+│   │   ├── components/        # Reusable components
+│   │   ├── pages/             # Page components
+│   │   ├── services/          # API and WebSocket services
+│   │   ├── context/           # React context providers
+│   │   ├── hooks/             # Custom hooks
+│   │   ├── utils/             # Utility functions
+│   │   └── styles/            # Global styles
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── package.json
+│   └── .env.example
+├── .env.example               # Environment variables template
+├── .gitignore
+└── README.md
+```
 
-- Python 3.8+
-- PostgreSQL 12+
+## 🛠️ Prerequisites
 
-### Setup
+- **Node.js** v18+ and npm v9+
+- **PostgreSQL** 12+ (with PostGIS extension)
+- **Git** for version control
+- **Google Cloud Account** (optional, for cloud deployment)
 
-1. Clone the repository:
+## 📦 Installation
+
+### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd Delivery
 ```
 
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+### 2. Set Up Environment Variables
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+Copy the example environment file and update with your configuration:
 
-4. Set up environment variables:
 ```bash
 cp .env.example .env
-# Edit .env with your database credentials and secret key
 ```
 
-5. Create the database:
+Edit `.env` with your configuration:
+
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=delivery_db
+
+# Server
+PORT=3000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+
+# JWT
+JWT_SECRET=your-super-secret-key-here
+JWT_EXPIRE=7d
+```
+
+### 3. Set Up PostgreSQL Database
+
 ```bash
+# Create database (if not exists)
 createdb delivery_db
+
+# The backend will automatically create tables and enable PostGIS extension on first run
 ```
 
-6. Run database migrations (optional, tables auto-create on startup):
+### 4. Install Backend Dependencies
+
 ```bash
-alembic upgrade head
+cd backend
+npm install
+cp ../.env .env
 ```
 
-7. Start the server:
+### 5. Install Frontend Dependencies
+
 ```bash
-uvicorn app.main:app --reload
+cd frontend
+npm install
+cp ../.env.example .env.local
 ```
 
-The API will be available at `http://localhost:8000`
+Update `frontend/.env.local` with your frontend-specific settings:
 
-## Admin Panel
+```env
+VITE_API_URL=http://localhost:3000
+VITE_SOCKET_URL=http://localhost:3000
+VITE_GOOGLE_MAPS_API_KEY=your-api-key
+```
 
-Access the admin panel at `http://localhost:8000/admin`
+## 🚀 Running the Application
 
-### Admin Panel Features
+### Development Mode (Terminal 1 - Backend)
 
-- **Dashboard**: Overview statistics including total users, restaurants, orders, and revenue
-- **User Management**: View, filter, and manage all users by role
-- **Restaurant Management**: Activate/deactivate and delete restaurants
-- **Order Management**: View all orders with status filtering and management
-- **Review Management**: Monitor and moderate customer reviews
-- **Analytics**: Revenue tracking, order statistics, and top-performing restaurants
+```bash
+cd backend
+npm run dev
+```
 
-### Admin Login
+The backend server will start at `http://localhost:3000`
 
-To access the admin panel, you need an account with the `admin` role:
+- API: `http://localhost:3000/api`
+- WebSocket: `ws://localhost:3000`
+- Health Check: `http://localhost:3000/health`
 
-1. Register a new user through the API
-2. Update their role to `admin` in the database:
+### Development Mode (Terminal 2 - Frontend)
+
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend will start at `http://localhost:5173`
+
+## 📱 Features
+
+### For Customers
+- Request package pickups with location details
+- Real-time driver location tracking on map
+- Live delivery status updates
+- Order history and tracking
+- Ratings and reviews
+
+### For Drivers
+- View and accept delivery tasks
+- Real-time location tracking
+- Route optimization
+- Delivery management
+- Earnings dashboard
+- Performance metrics
+
+### For Administrators
+- Dashboard with key metrics
+- User management (customers, drivers, admins)
+- Delivery monitoring and analytics
+- System settings and configurations
+- Reports and insights
+
+## 🗄️ Database Schema
+
+### Users Table
 ```sql
-UPDATE users SET role = 'admin' WHERE email = 'your-admin@example.com';
-```
-3. Login to the admin panel at `http://localhost:8000/admin`
-
-## Restaurant Dashboard
-
-Access the restaurant dashboard at `http://localhost:8000/restaurant`
-
-### Restaurant Dashboard Features
-
-- **Dashboard**: Comprehensive statistics for your restaurants
-  - Total orders, revenue, and ratings
-  - Pending and active orders count
-  - 30-day performance metrics
-  - Top-selling menu items (per restaurant)
-- **Order Management**: Real-time order tracking and status updates
-  - View all incoming orders
-  - Confirm, prepare, and mark orders as ready
-  - Filter by order status
-  - Update order status with one click
-- **Menu Management**: Full menu item control
-  - Add new menu items with detailed information
-  - Edit existing items (price, availability, description)
-  - Mark items as vegetarian/vegan
-  - Enable/disable item availability
-  - Delete menu items
-- **Review Monitoring**: View all customer reviews and ratings
-  - See customer feedback
-  - Monitor restaurant ratings
-  - Track review trends
-- **Restaurant Profile**: View and manage restaurant details
-  - Business information
-  - Delivery settings
-  - Operating status
-
-### Restaurant Dashboard Login
-
-To access the restaurant dashboard, you need an account with the `restaurant_owner` role:
-
-1. Register a new user through the API with role `restaurant_owner`:
-```bash
-curl -X POST "http://localhost:8000/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "owner@restaurant.com",
-    "password": "password123",
-    "full_name": "Restaurant Owner",
-    "role": "restaurant_owner"
-  }'
+- id (UUID)
+- email, password_hash, full_name, phone
+- role (customer, driver, admin)
+- address, location (GEOGRAPHY)
+- is_active, created_at, updated_at
 ```
 
-2. Create a restaurant for this owner through the API
-3. Login to the restaurant dashboard at `http://localhost:8000/restaurant`
-
-### Multi-Restaurant Support
-
-If you own multiple restaurants, you can:
-- View combined statistics across all restaurants
-- Switch between restaurants using the dropdown selector
-- Manage each restaurant independently
-- Track performance of individual locations
-
-## API Documentation
-
-Once the server is running, visit:
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-## Database Schema
-
-### Users
-- id, email, hashed_password, full_name, phone, role
-- address, latitude, longitude
+### Deliveries Table
+```sql
+- id, customer_id, driver_id
+- pickup_address, pickup_location (GEOGRAPHY)
+- delivery_address, delivery_location (GEOGRAPHY)
+- status, priority, estimated_delivery_time
 - created_at, updated_at
+```
 
-### Restaurants
-- id, name, description, phone, email
-- address, latitude, longitude
-- cuisine_type, image_url, is_active
-- average_rating, total_reviews
-- delivery_fee, minimum_order, estimated_delivery_time
-- owner_id (FK to Users)
+### Driver Locations Table
+```sql
+- id, driver_id, location (GEOGRAPHY)
+- bearing, speed, accuracy, timestamp
+```
 
-### Menu Items
-- id, restaurant_id (FK), name, description, price
-- category, image_url, is_available
-- is_vegetarian, is_vegan
+### Delivery Reviews Table
+```sql
+- id, delivery_id, customer_id, driver_id
+- rating (1-5), comment, created_at
+```
 
-### Orders
-- id, customer_id (FK), restaurant_id (FK), driver_id (FK)
-- status, subtotal, delivery_fee, tax, total_amount
-- delivery_address, delivery_latitude, delivery_longitude
-- delivery_instructions
-- created_at, confirmed_at, delivered_at
-
-### Order Items
-- id, order_id (FK), menu_item_id (FK)
-- quantity, price, special_instructions
-
-### Reviews
-- id, user_id (FK), restaurant_id (FK)
-- rating, comment
-- created_at, updated_at
-
-## User Roles
-
-### Customer
-- Register and login
-- Browse restaurants and menus
-- Place orders
-- Track order status
-- Leave reviews
-
-### Restaurant Owner
-- Manage restaurant information
-- Add/edit/delete menu items
-- View and update order status
-- Confirm/prepare orders
-
-### Delivery Driver
-- View available orders
-- Assign themselves to orders
-- Update delivery status
-- Mark orders as delivered
-
-### Admin
-- Full system access (can be extended)
-
-## API Endpoints
+## 🔑 API Endpoints (Core)
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login and get JWT token
-- `GET /api/auth/me` - Get current user info
 
-### Restaurants
-- `POST /api/restaurants/` - Create restaurant (Owner only)
-- `GET /api/restaurants/` - List restaurants (with filters)
-- `GET /api/restaurants/{id}` - Get restaurant details
-- `PUT /api/restaurants/{id}` - Update restaurant (Owner only)
-- `DELETE /api/restaurants/{id}` - Delete restaurant (Owner only)
+### Deliveries
+- `POST /api/deliveries` - Create delivery request
+- `GET /api/deliveries` - List deliveries
+- `GET /api/deliveries/:id` - Get delivery details
+- `PUT /api/deliveries/:id/status` - Update delivery status
 
-### Menu Items
-- `POST /api/menu-items/` - Create menu item (Owner only)
-- `GET /api/menu-items/restaurant/{id}` - Get restaurant menu
-- `GET /api/menu-items/{id}` - Get menu item details
-- `PUT /api/menu-items/{id}` - Update menu item (Owner only)
-- `DELETE /api/menu-items/{id}` - Delete menu item (Owner only)
+### Driver Operations
+- `GET /api/drivers/deliveries` - Get available deliveries
+- `POST /api/drivers/deliveries/:id/accept` - Accept delivery
+- `POST /api/drivers/location` - Update driver location
 
-### Orders
-- `POST /api/orders/` - Create order (Customer only)
-- `GET /api/orders/` - List orders (filtered by role)
-- `GET /api/orders/{id}` - Get order details
-- `PUT /api/orders/{id}` - Update order status
-- `POST /api/orders/{id}/assign` - Assign driver to order
+### User Management
+- `GET /api/users/profile` - Get user profile
+- `PUT /api/users/profile` - Update profile
 
-### Reviews
-- `POST /api/reviews/` - Create review (Customer only)
-- `GET /api/reviews/restaurant/{id}` - Get restaurant reviews
-- `GET /api/reviews/{id}` - Get review details
-- `PUT /api/reviews/{id}` - Update review (Owner only)
-- `DELETE /api/reviews/{id}` - Delete review (Owner only)
+## 🔄 WebSocket Events
 
-## Example Usage
+### Client → Server
+- `driver:location` - Update driver's real-time location
+- `order:status` - Update order status
+- `join:order` - Join real-time updates for specific order
+- `leave:order` - Leave order room
+- `driver:available` - Driver availability status
 
-### 1. Register a Customer
+### Server → Client
+- `driver:location:update` - Broadcast driver location
+- `order:status:update` - Order status change notification
+- `driver:available:update` - Driver availability updates
+
+## 🧪 Testing
+
+### Backend Tests
 ```bash
-curl -X POST "http://localhost:8000/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "customer@example.com",
-    "password": "password123",
-    "full_name": "John Doe",
-    "phone": "1234567890",
-    "role": "customer",
-    "address": "123 Main St"
-  }'
+cd backend
+npm test
+npm run test:watch
 ```
 
-### 2. Login
+### Frontend Tests
 ```bash
-curl -X POST "http://localhost:8000/api/auth/login" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=customer@example.com&password=password123"
+cd frontend
+npm run test
 ```
 
-### 3. Create Restaurant (as Restaurant Owner)
+## 📊 Database Migrations
+
+The backend automatically creates tables on first run. For manual migrations:
+
 ```bash
-curl -X POST "http://localhost:8000/api/restaurants/" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Pizza Palace",
-    "description": "Best pizza in town",
-    "address": "456 Food St",
-    "latitude": 40.7128,
-    "longitude": -74.0060,
-    "cuisine_type": "Italian",
-    "delivery_fee": 3.99,
-    "minimum_order": 15.00
-  }'
+cd backend
+npm run migrate
+npm run seed
 ```
 
-### 4. Place an Order
+## 🚢 Deployment
+
+### Deploy to Google Cloud
+
+1. **Set up Google Cloud Project**
+   ```bash
+   gcloud projects create delivery-app
+   gcloud config set project delivery-app
+   ```
+
+2. **Deploy Backend to Cloud Run**
+   ```bash
+   cd backend
+   gcloud run deploy delivery-backend --source .
+   ```
+
+3. **Deploy Frontend to Firebase Hosting**
+   ```bash
+   cd frontend
+   npm run build
+   firebase deploy
+   ```
+
+4. **Set up Cloud SQL for PostgreSQL**
+   ```bash
+   gcloud sql instances create delivery-db --database-version POSTGRES_14
+   gcloud sql databases create delivery_db --instance=delivery-db
+   ```
+
+### Environment Variables on Google Cloud
+
+Set variables using Cloud Secret Manager:
 ```bash
-curl -X POST "http://localhost:8000/api/orders/" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "restaurant_id": 1,
-    "items": [
-      {
-        "menu_item_id": 1,
-        "quantity": 2,
-        "special_instructions": "Extra cheese"
-      }
-    ],
-    "delivery_address": "123 Main St",
-    "delivery_latitude": 40.7128,
-    "delivery_longitude": -74.0060
-  }'
+gcloud secrets create db-password --replication-policy="automatic"
+gcloud secrets versions add db-password --data-file=- < password.txt
 ```
 
-## Order Flow
+## 🔐 Security Features
 
-1. **Customer** places order → Status: `PENDING`
-2. **Restaurant Owner** confirms → Status: `CONFIRMED`
-3. **Restaurant Owner** prepares → Status: `PREPARING`
-4. **Restaurant Owner** marks ready → Status: `READY_FOR_PICKUP`
-5. **Driver** assigns to order → Status: `OUT_FOR_DELIVERY`
-6. **Driver** delivers → Status: `DELIVERED`
-
-## Security Features
-
-- Password hashing with bcrypt
-- JWT token-based authentication
+- JWT-based authentication with refresh tokens
+- Password hashing with bcryptjs
 - Role-based access control (RBAC)
-- Input validation with Pydantic
-- SQL injection prevention through SQLAlchemy ORM
+- Input validation with Joi
+- Rate limiting on API endpoints
+- CORS protection
+- Helmet.js for security headers
+- HTTPS (required in production)
 
-## Configuration
+## 📝 Environment Variables
 
-Edit `.env` file to configure:
-- `DATABASE_URL`: PostgreSQL connection string
-- `SECRET_KEY`: JWT secret key (use a strong random string)
-- `ALGORITHM`: JWT algorithm (default: HS256)
-- `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration time
+See `.env.example` for all available configuration options:
 
-## Development
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NODE_ENV` | Environment (development/production) | development |
+| `PORT` | Server port | 3000 |
+| `DB_HOST` | Database host | localhost |
+| `DB_PORT` | Database port | 5432 |
+| `JWT_SECRET` | JWT signing secret | (required) |
+| `CORS_ORIGIN` | Allowed CORS origins | * |
 
-### Run tests (to be implemented)
+## 🐛 Troubleshooting
+
+### PostgreSQL Connection Error
 ```bash
-pytest
+# Check if PostgreSQL is running
+psql -U postgres -c "SELECT 1;"
+
+# Create database if missing
+createdb delivery_db
+
+# Connect to database and enable PostGIS
+psql delivery_db -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 ```
 
-### Database migrations
+### Port Already in Use
 ```bash
-# Generate migration
-alembic revision --autogenerate -m "Description"
-
-# Apply migration
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
+# Change PORT in .env or kill existing process
+kill -9 $(lsof -t -i :3000)
 ```
 
-## Production Deployment
+### WebSocket Connection Issues
+- Ensure backend is running
+- Check CORS settings in `.env`
+- Verify firewall allows WebSocket connections
 
-1. Set environment variables securely
-2. Use a production WSGI server (e.g., Gunicorn)
-3. Set up PostgreSQL with proper credentials
-4. Configure CORS for specific origins
-5. Use HTTPS
-6. Set up proper logging and monitoring
+## 📚 Documentation
 
-### Example with Gunicorn
-```bash
-gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
-```
+- [Backend API Documentation](./backend/README.md)
+- [Frontend Setup Guide](./frontend/README.md)
+- [Database Schema](./docs/DATABASE.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
 
-## Future Enhancements
+## 🤝 Contributing
 
-- Real-time order tracking with WebSockets
-- Payment gateway integration (Stripe, PayPal)
-- Push notifications
-- Advanced search and filtering
-- Analytics dashboard
-- Scheduled orders
-- Promo codes and discounts
-- Multi-restaurant orders
-- Chat system between users
-- Image upload for restaurants and menu items
+1. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+2. Commit changes (`git commit -m 'Add AmazingFeature'`)
+3. Push to branch (`git push origin feature/AmazingFeature`)
+4. Open a Pull Request
 
-## Contributing
+## 📄 License
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+MIT License - see LICENSE file for details
 
-## License
+## 📞 Support
 
-MIT License
+For issues and questions:
+1. Check the troubleshooting section
+2. Open an issue on GitHub
+3. Contact development team
 
-## Support
+## 🎯 Roadmap
 
-For issues and questions, please open an issue on the repository.
+- [ ] Payment integration (Stripe)
+- [ ] Push notifications
+- [ ] Advanced analytics dashboard
+- [ ] AI-powered route optimization
+- [ ] Multi-language support
+- [ ] Mobile app (React Native)
+- [ ] Scheduled deliveries
+- [ ] Batch processing
+- [ ] Insurance integration
+- [ ] Customs documentation
+
+---
+
+**Last Updated**: November 2024
+**Version**: 1.0.0

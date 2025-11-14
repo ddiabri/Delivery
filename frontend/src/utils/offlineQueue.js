@@ -50,13 +50,19 @@ export const addToQueue = async (request) => {
   try {
     await initializeDB();
 
+    // Read request body as text (it's a stream and can only be read once)
+    let bodyText = null;
+    if (request.body) {
+      bodyText = await request.text();
+    }
+
     const queueItem = {
       timestamp: Date.now(),
       status: 'PENDING',
       method: request.method,
       url: request.url,
       headers: Object.fromEntries(request.headers.entries()),
-      body: request.body ? JSON.parse(request.body) : null,
+      body: bodyText ? JSON.parse(bodyText) : null,
       retryCount: 0,
       maxRetries: 3
     };

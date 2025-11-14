@@ -15,12 +15,10 @@ const EXCLUDED_URLS = [
 /**
  * Check if URL should be queued when offline
  */
-const shouldQueueRequest = (url) => {
+const shouldQueueRequest = (url, method = 'GET') => {
   return (
     !EXCLUDED_URLS.some(excluded => url.includes(excluded)) &&
-    ['POST', 'PUT', 'DELETE', 'PATCH'].includes(
-      new Request(url).method || 'GET'
-    )
+    ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)
   );
 };
 
@@ -35,8 +33,9 @@ export const fetchWithOfflineSupport = async (url, options = {}) => {
     if (!navigator.onLine) {
       console.log(`[Offline] Request queued: ${method} ${url}`);
 
-      // Create a fake request object for queuing
-      if (shouldQueueRequest(url)) {
+      // Queue the request if it's a type we can retry
+      if (shouldQueueRequest(url, method)) {
+        // Create a Request object for queuing (will read body as stream)
         const request = new Request(url, options);
         await addToQueue(request);
       }
@@ -63,7 +62,8 @@ export const fetchWithOfflineSupport = async (url, options = {}) => {
     console.error(`[Fetch Error] ${method} ${url}:`, error);
 
     // Queue the request if it's a type we can retry
-    if (shouldQueueRequest(url) && error.message.includes('Failed to fetch')) {
+    if (shouldQueueRequest(url, method) && error.message.includes('Failed to fetch')) {
+      // Create a Request object for queuing
       const request = new Request(url, options);
       await addToQueue(request);
 

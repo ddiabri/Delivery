@@ -21,6 +21,12 @@ const toRadians = (degrees) => {
 
 /**
  * Check if driver location triggers geofence event
+ * @param {string} driverId - Driver ID
+ * @param {string} deliveryId - Delivery ID
+ * @param {string} customerId - Customer ID
+ * @param {number} currentLat - Current latitude
+ * @param {number} currentLon - Current longitude
+ * @param {object} io - Socket.IO server instance (for broadcasting notifications)
  */
 export const checkGeofenceEvents = async (
   driverId,
@@ -28,7 +34,7 @@ export const checkGeofenceEvents = async (
   customerId,
   currentLat,
   currentLon,
-  socket
+  io
 ) => {
   try {
     // Get delivery location and geofence zone
@@ -97,6 +103,15 @@ export const checkGeofenceEvents = async (
       shouldNotify = true;
     }
 
+    // Time-based deduplication: prevent duplicate events within 1 minute
+    if (shouldNotify && lastEvent && lastEvent.event_type === eventType) {
+      const timeSinceLastEvent = Date.now() - new Date(lastEvent.created_at).getTime();
+      if (timeSinceLastEvent < 60000) { // Less than 1 minute
+        console.log(`⏭️ Geofence event ${eventType} already sent recently, skipping duplicate`);
+        shouldNotify = false;
+      }
+    }
+
     // Log geofence event
     if (eventType && shouldNotify) {
       const eventResult = await query(
@@ -111,7 +126,7 @@ export const checkGeofenceEvents = async (
 
       // Send notifications
       await sendGeofenceNotifications(
-        socket,
+        io,
         driverId,
         customerId,
         deliveryId,
@@ -137,7 +152,7 @@ export const checkGeofenceEvents = async (
  * Send geofence notifications to driver and customer
  */
 const sendGeofenceNotifications = async (
-  socket,
+  io,
   driverId,
   customerId,
   deliveryId,
@@ -214,9 +229,9 @@ const sendGeofenceNotifications = async (
 
     const notification = notifications[eventType];
 
-    if (notification && socket) {
+    if (notification && io) {
       // Notify customer
-      socket.to(`user:${customerId}`).emit('geofence:alert', {
+      io.to(`user:${customerId}`).emit('geofence:alert', {
         deliveryId,
         eventType,
         ...notification.customer,
@@ -225,7 +240,7 @@ const sendGeofenceNotifications = async (
       });
 
       // Notify driver
-      socket.to(`user:${driverId}`).emit('geofence:alert', {
+      io.to(`user:${driverId}`).emit('geofence:alert', {
         deliveryId,
         eventType,
         ...notification.driver,

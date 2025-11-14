@@ -1,6 +1,7 @@
 import pkg from 'pg';
 const { Client, Pool } = pkg;
 import dotenv from 'dotenv';
+import { walletSchemaSQL } from './wallet-schema.js';
 
 dotenv.config();
 
@@ -482,6 +483,10 @@ const createTables = async (client) => {
       );
     `);
     console.log('✅ Bulk Messages table created');
+
+    // Create wallet-related tables
+    await client.query(walletSchemaSQL);
+    console.log('✅ Wallet tables created');
 
     // Rate Limit Tracking table
     await client.query(`

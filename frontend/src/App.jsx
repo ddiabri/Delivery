@@ -27,6 +27,7 @@ import DeliveryPreferencesPage from './pages/DeliveryPreferencesPage';
 import AdminBulkMessagingPage from './pages/AdminBulkMessagingPage';
 import AdminPromotionBannersPage from './pages/AdminPromotionBannersPage';
 import AdminRateLimitingPage from './pages/AdminRateLimitingPage';
+import WalletPage from './pages/WalletPage';
 import './App.css';
 
 function App() {
@@ -196,6 +197,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DeliveryPreferencesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/wallet"
+              element={
+                <ProtectedRoute>
+                  <WalletPage />
                 </ProtectedRoute>
               }
             />

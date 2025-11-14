@@ -30,6 +30,7 @@ import deliveryPreferencesRoutes from './src/routes/deliveryPreferencesRoutes.js
 import bulkMessagingRoutes from './src/routes/bulkMessagingRoutes.js';
 import promotionBannersRoutes from './src/routes/promotionBannersRoutes.js';
 import rateLimitRoutes from './src/routes/rateLimitRoutes.js';
+import walletRoutes from './src/routes/walletRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 import { initializeWebSocket } from './src/utils/notificationService.js';
 
@@ -105,6 +106,7 @@ app.use('/api/delivery-preferences', deliveryPreferencesRoutes);
 app.use('/api/bulk-messages', bulkMessagingRoutes);
 app.use('/api/banners', promotionBannersRoutes);
 app.use('/api/rate-limit', rateLimitRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Initialize WebSocket for notifications
 initializeWebSocket(io);

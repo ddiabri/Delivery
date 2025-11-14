@@ -100,9 +100,11 @@ export const deliveryAPI = {
 
 export const driverAPI = {
   getAvailableDeliveries: (params) =>
-    apiClient.get('/drivers/deliveries', { params }),
+    apiClient.get('/drivers/available', { params }),
+  getActiveDeliveries: () =>
+    apiClient.get('/drivers/active'),
   acceptDelivery: (deliveryId) =>
-    apiClient.post(`/drivers/deliveries/${deliveryId}/accept`),
+    deliveryAPI.updateDeliveryStatus(deliveryId, 'ACCEPTED'),
   updateLocation: (data) =>
     apiClient.post('/drivers/location', data),
   getStats: () => apiClient.get('/drivers/stats'),

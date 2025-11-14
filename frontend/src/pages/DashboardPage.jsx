@@ -26,6 +26,10 @@ export default function DashboardPage() {
     }
   };
 
+  const handleViewDelivery = (deliveryId) => {
+    navigate(`/delivery/${deliveryId}`);
+  };
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
@@ -124,7 +128,7 @@ export default function DashboardPage() {
                   <div
                     key={delivery.id}
                     className="delivery-card"
-                    onClick={() => navigate(`/delivery/${delivery.id}`)}
+                    onClick={() => handleViewDelivery(delivery.id)}
                   >
                     <div className="delivery-header">
                       <h3>{delivery.pickup_address}</h3>

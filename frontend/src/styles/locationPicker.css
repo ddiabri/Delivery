@@ -1,0 +1,133 @@
+/* Location Picker Component Styles */
+
+.location-picker {
+  margin-bottom: 24px;
+}
+
+.location-label {
+  display: block;
+  margin-bottom: 12px;
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.location-form {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.location-form:focus-within {
+  border-color: #667eea;
+  background-color: #f5f5ff;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  color: #666;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.btn-location {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 2px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.btn-location:hover:not(:disabled) {
+  background-color: #e8e8e8;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.btn-location:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.location-info {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.btn-confirm {
+  width: 100%;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-confirm:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .location-form {
+    padding: 12px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

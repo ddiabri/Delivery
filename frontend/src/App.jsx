@@ -5,6 +5,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import RequestDeliveryPage from './pages/RequestDeliveryPage';
+import AvailableDeliveriesPage from './pages/AvailableDeliveriesPage';
+import DeliveryDetailPage from './pages/DeliveryDetailPage';
 import './App.css';
 
 function App() {
@@ -23,6 +26,36 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer routes */}
+            <Route
+              path="/request-delivery"
+              element={
+                <ProtectedRoute requiredRole="customer">
+                  <RequestDeliveryPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Driver routes */}
+            <Route
+              path="/available-deliveries"
+              element={
+                <ProtectedRoute requiredRole="driver">
+                  <AvailableDeliveriesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Shared routes */}
+            <Route
+              path="/delivery/:id"
+              element={
+                <ProtectedRoute>
+                  <DeliveryDetailPage />
                 </ProtectedRoute>
               }
             />

@@ -483,6 +483,55 @@ const createTables = async (client) => {
     `);
     console.log('✅ Bulk Messages table created');
 
+    // Rate Limit Tracking table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS rate_limit_tracking (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ip_address VARCHAR(45),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        endpoint VARCHAR(500) NOT NULL,
+        method VARCHAR(10) NOT NULL,
+        request_count INTEGER DEFAULT 1,
+        first_request_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_request_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_blocked BOOLEAN DEFAULT false,
+        block_until TIMESTAMP,
+        block_reason VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Rate Limit Tracking table created');
+
+    // IP Whitelist table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ip_whitelist (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        ip_address VARCHAR(45) NOT NULL UNIQUE,
+        description VARCHAR(255),
+        created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ IP Whitelist table created');
+
+    // Rate Limit Analytics table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS rate_limit_analytics (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        endpoint VARCHAR(500) NOT NULL,
+        method VARCHAR(10) NOT NULL,
+        total_requests INTEGER DEFAULT 0,
+        blocked_requests INTEGER DEFAULT 0,
+        unique_ips INTEGER DEFAULT 0,
+        unique_users INTEGER DEFAULT 0,
+        avg_response_time DECIMAL(10, 2),
+        date_recorded DATE DEFAULT CURRENT_DATE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Rate Limit Analytics table created');
+
     // Create indexes for better query performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_deliveries_customer ON deliveries(customer_id);
@@ -539,6 +588,14 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_bulk_messages_created_by ON bulk_messages(created_by);
       CREATE INDEX IF NOT EXISTS idx_bulk_messages_status ON bulk_messages(status);
       CREATE INDEX IF NOT EXISTS idx_bulk_messages_created ON bulk_messages(created_at);
+      CREATE INDEX IF NOT EXISTS idx_rate_limit_ip ON rate_limit_tracking(ip_address);
+      CREATE INDEX IF NOT EXISTS idx_rate_limit_user ON rate_limit_tracking(user_id);
+      CREATE INDEX IF NOT EXISTS idx_rate_limit_endpoint ON rate_limit_tracking(endpoint);
+      CREATE INDEX IF NOT EXISTS idx_rate_limit_blocked ON rate_limit_tracking(is_blocked);
+      CREATE INDEX IF NOT EXISTS idx_rate_limit_created ON rate_limit_tracking(created_at);
+      CREATE INDEX IF NOT EXISTS idx_whitelist_ip ON ip_whitelist(ip_address);
+      CREATE INDEX IF NOT EXISTS idx_analytics_endpoint ON rate_limit_analytics(endpoint);
+      CREATE INDEX IF NOT EXISTS idx_analytics_date ON rate_limit_analytics(date_recorded);
     `);
     console.log('✅ Database indexes created');
 

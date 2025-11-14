@@ -4,13 +4,13 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Import database and routes
 import { testConnection, initializeDatabase } from './src/config/database.js';
+import { advancedRateLimitMiddleware } from './src/middleware/advancedRateLimiter.js';
 import authRoutes from './src/routes/authRoutes.js';
 import deliveryRoutes from './src/routes/deliveryRoutes.js';
 import driverRoutes from './src/routes/driverRoutes.js';
@@ -29,6 +29,7 @@ import deliverySchedulingRoutes from './src/routes/deliverySchedulingRoutes.js';
 import deliveryPreferencesRoutes from './src/routes/deliveryPreferencesRoutes.js';
 import bulkMessagingRoutes from './src/routes/bulkMessagingRoutes.js';
 import promotionBannersRoutes from './src/routes/promotionBannersRoutes.js';
+import rateLimitRoutes from './src/routes/rateLimitRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 import { initializeWebSocket } from './src/utils/notificationService.js';
 
@@ -58,16 +59,11 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
-});
-
-app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Advanced rate limiting middleware
+app.use('/api/', advancedRateLimitMiddleware);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -108,6 +104,7 @@ app.use('/api/scheduled-deliveries', deliverySchedulingRoutes);
 app.use('/api/delivery-preferences', deliveryPreferencesRoutes);
 app.use('/api/bulk-messages', bulkMessagingRoutes);
 app.use('/api/banners', promotionBannersRoutes);
+app.use('/api/rate-limit', rateLimitRoutes);
 
 // Initialize WebSocket for notifications
 initializeWebSocket(io);

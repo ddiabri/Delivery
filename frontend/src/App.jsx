@@ -26,6 +26,7 @@ import DeliverySchedulingPage from './pages/DeliverySchedulingPage';
 import DeliveryPreferencesPage from './pages/DeliveryPreferencesPage';
 import AdminBulkMessagingPage from './pages/AdminBulkMessagingPage';
 import AdminPromotionBannersPage from './pages/AdminPromotionBannersPage';
+import AdminRateLimitingPage from './pages/AdminRateLimitingPage';
 import './App.css';
 
 function App() {
@@ -214,6 +215,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminPromotionBannersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/rate-limiting"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminRateLimitingPage />
                 </ProtectedRoute>
               }
             />

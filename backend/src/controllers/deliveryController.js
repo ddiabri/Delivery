@@ -1,6 +1,7 @@
 import { query } from '../config/database.js';
 import { v4 as uuidv4 } from 'uuid';
 import geolib from 'geolib';
+import { awardPoints, initializeUserPoints } from '../utils/pointsCalculator.js';
 
 /**
  * Create a new delivery request
@@ -77,6 +78,14 @@ export const createDelivery = async (req, res) => {
     );
 
     const delivery = result.rows[0];
+
+    // Initialize points for customer if not already initialized
+    try {
+      await initializeUserPoints(customerId);
+    } catch (pointsErr) {
+      console.warn('Error initializing points for customer:', pointsErr);
+      // Don't fail the delivery creation due to points initialization issue
+    }
 
     res.status(201).json({
       message: 'Delivery request created successfully',
@@ -336,6 +345,43 @@ export const updateDeliveryStatus = async (req, res) => {
 
     const updateResult = await query(sql, params);
     const updatedDelivery = updateResult.rows[0];
+
+    // Award points when delivery is completed
+    if (status === 'DELIVERED') {
+      try {
+        const driverId = delivery.driver_id;
+        const customerId = delivery.customer_id;
+
+        // Award points to driver for completing delivery (100 base points)
+        if (driverId) {
+          await awardPoints(
+            driverId,
+            'DELIVERY_COMPLETED',
+            100,
+            null,
+            id,
+            1
+          );
+        }
+
+        // Award points to customer for successful delivery (50 base points)
+        if (customerId) {
+          await awardPoints(
+            customerId,
+            'DELIVERY_COMPLETED',
+            50,
+            null,
+            id,
+            1
+          );
+        }
+
+        console.log(`[Points] Awarded points for delivery ${id} completion`);
+      } catch (pointsErr) {
+        console.warn('Error awarding points for delivery completion:', pointsErr);
+        // Don't fail the delivery status update due to points issue
+      }
+    }
 
     res.status(200).json({
       message: `Delivery status updated to ${status}`,

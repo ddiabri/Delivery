@@ -6,6 +6,7 @@ import {
   verifyRefreshToken,
 } from '../utils/auth.js';
 import { v4 as uuidv4 } from 'uuid';
+import { initializeUserPoints, autoEnrollUserInCampaigns } from '../utils/pointsCalculator.js';
 
 /**
  * Register a new user
@@ -40,6 +41,16 @@ export const register = async (req, res) => {
     );
 
     const user = result.rows[0];
+
+    // Initialize points for new user and auto-enroll in campaigns
+    try {
+      await initializeUserPoints(user.id);
+      await autoEnrollUserInCampaigns(user.id, user.role, true);
+      console.log(`[Points] Initialized points for new user ${user.id}`);
+    } catch (pointsErr) {
+      console.warn('Error initializing points for new user:', pointsErr);
+      // Don't fail registration due to points initialization issue
+    }
 
     // Generate tokens
     const tokens = createTokenPair(user);

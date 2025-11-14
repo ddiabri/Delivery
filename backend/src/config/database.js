@@ -135,6 +135,21 @@ const createTables = async (client) => {
     `);
     console.log('✅ Delivery Reviews table created');
 
+    // Messages/Chat table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        delivery_id UUID NOT NULL REFERENCES deliveries(id) ON DELETE CASCADE,
+        sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        message_text TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Messages table created');
+
     // Create indexes for better query performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_deliveries_customer ON deliveries(customer_id);
@@ -146,6 +161,11 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
       CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
       CREATE INDEX IF NOT EXISTS idx_delivery_reviews_delivery ON delivery_reviews(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_delivery ON messages(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
+      CREATE INDEX IF NOT EXISTS idx_messages_delivery_created ON messages(delivery_id, created_at);
     `);
     console.log('✅ Database indexes created');
 

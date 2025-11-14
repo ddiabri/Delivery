@@ -136,4 +136,14 @@ export const reviewAPI = {
     apiClient.delete(`/reviews/${id}`),
 };
 
+export const messageAPI = {
+  sendMessage: (data) => apiClient.post('/messages', data),
+  getChatHistory: (deliveryId, params) =>
+    apiClient.get(`/messages/${deliveryId}`, { params }),
+  getUnreadCount: (deliveryId) =>
+    apiClient.get(`/messages/${deliveryId}/unread`),
+  markAsRead: (deliveryId) =>
+    apiClient.put(`/messages/${deliveryId}/mark-read`),
+};
+
 export default apiClient;

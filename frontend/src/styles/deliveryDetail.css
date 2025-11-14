@@ -402,6 +402,33 @@
   margin-top: 20px;
 }
 
+/* Chat Card */
+.chat-card {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  max-height: 500px;
+}
+
+.chat-card h2 {
+  padding: 16px;
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-card .chat-container {
+  flex: 1;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+.chat-card .chat-header {
+  border-radius: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
 /* Responsive */
 @media (max-width: 1000px) {
   .content-grid {

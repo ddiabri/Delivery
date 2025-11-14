@@ -15,6 +15,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import deliveryRoutes from './src/routes/deliveryRoutes.js';
 import driverRoutes from './src/routes/driverRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
+import chatRoutes from './src/routes/chatRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 
 // Load environment variables
@@ -79,6 +80,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/messages', chatRoutes);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers
@@ -160,6 +162,46 @@ io.on('connection', (socket) => {
         ...driver
       });
     }
+  });
+
+  // Chat messaging
+  socket.on('message:send', (data) => {
+    const { deliveryId, senderId, recipientId, message } = data;
+
+    // Emit to specific delivery room
+    io.to(`delivery:${deliveryId}`).emit('message:new', {
+      deliveryId,
+      senderId,
+      recipientId,
+      message,
+      timestamp: new Date()
+    });
+
+    console.log(`[Socket.IO] Message sent in delivery ${deliveryId}`);
+  });
+
+  // Join delivery chat room
+  socket.on('join:chat', (data) => {
+    const { deliveryId, userId } = data;
+    socket.join(`chat:${deliveryId}`);
+    socket.data.deliveryId = deliveryId;
+    socket.data.userId = userId;
+    console.log(`[Socket.IO] User ${userId} joined chat for delivery ${deliveryId}`);
+  });
+
+  // Leave delivery chat room
+  socket.on('leave:chat', (deliveryId) => {
+    socket.leave(`chat:${deliveryId}`);
+    console.log(`[Socket.IO] User left chat for delivery ${deliveryId}`);
+  });
+
+  // Mark messages as read
+  socket.on('messages:mark-read', (deliveryId) => {
+    io.to(`chat:${deliveryId}`).emit('messages:read', {
+      deliveryId,
+      timestamp: new Date()
+    });
+    console.log(`[Socket.IO] Messages marked as read in delivery ${deliveryId}`);
   });
 
   // Disconnect handler

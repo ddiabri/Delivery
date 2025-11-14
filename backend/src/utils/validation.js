@@ -104,6 +104,31 @@ export const reviewSchemas = {
   }),
 };
 
+// Message validation schemas
+export const messageSchemas = {
+  send: Joi.object({
+    deliveryId: Joi.string().uuid().required().messages({
+      'string.guid': 'Delivery ID must be a valid UUID',
+      'any.required': 'Delivery ID is required',
+    }),
+    recipientId: Joi.string().uuid().required().messages({
+      'string.guid': 'Recipient ID must be a valid UUID',
+      'any.required': 'Recipient ID is required',
+    }),
+    message_text: Joi.string().min(1).max(1000).required().messages({
+      'string.min': 'Message must not be empty',
+      'string.max': 'Message must not exceed 1000 characters',
+      'any.required': 'Message is required',
+    }),
+  }),
+
+  getHistory: Joi.object({
+    deliveryId: Joi.string().uuid().required(),
+    limit: Joi.number().integer().min(1).max(100).default(50).optional(),
+    offset: Joi.number().integer().min(0).default(0).optional(),
+  }),
+};
+
 /**
  * Validate data against schema
  * @param {Object} data - Data to validate

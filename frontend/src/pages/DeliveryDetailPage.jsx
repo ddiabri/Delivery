@@ -6,6 +6,7 @@ import { getSocket, reviewAPI } from '../services/api';
 import RatingForm from '../components/RatingForm';
 import ReviewsList from '../components/ReviewsList';
 import DriverRating from '../components/DriverRating';
+import Chat from '../components/Chat';
 import '../styles/deliveryDetail.css';
 
 export default function DeliveryDetailPage() {
@@ -297,6 +298,27 @@ export default function DeliveryDetailPage() {
 
           {/* Right Column */}
           <div className="content-right">
+            {/* Chat Section */}
+            {currentDelivery.driver_id && (
+              <div className="card chat-card">
+                <h2>💬 Messages</h2>
+                <Chat
+                  deliveryId={id}
+                  currentUserId={user?.id}
+                  otherUserId={
+                    isDriver
+                      ? currentDelivery.customer_id
+                      : currentDelivery.driver_id
+                  }
+                  otherUserName={
+                    isDriver
+                      ? currentDelivery.customer_name
+                      : currentDelivery.driver_name
+                  }
+                />
+              </div>
+            )}
+
             {/* Status Card */}
             <div className="status-card">
               <div className="status-icon" style={{ color: getStatusColor(currentDelivery.status) }}>

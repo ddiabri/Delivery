@@ -322,6 +322,67 @@ const createTables = async (client) => {
     `);
     console.log('✅ Proof of Delivery table created');
 
+    // User Notification Preferences table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_notification_preferences (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        phone_number VARCHAR(20),
+        phone_verified BOOLEAN DEFAULT false,
+        phone_verified_at TIMESTAMP,
+        email_notifications BOOLEAN DEFAULT true,
+        sms_notifications BOOLEAN DEFAULT false,
+        whatsapp_notifications BOOLEAN DEFAULT false,
+        in_app_notifications BOOLEAN DEFAULT true,
+        browser_notifications BOOLEAN DEFAULT true,
+        delivery_status_updates BOOLEAN DEFAULT true,
+        points_alerts BOOLEAN DEFAULT true,
+        promotional BOOLEAN DEFAULT false,
+        weekly_digest BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ User Notification Preferences table created');
+
+    // Notification Delivery Logs table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS notification_delivery_logs (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        notification_id UUID REFERENCES notifications(id) ON DELETE SET NULL,
+        delivery_id UUID REFERENCES deliveries(id) ON DELETE SET NULL,
+        channel VARCHAR(50) NOT NULL CHECK (channel IN ('EMAIL', 'SMS', 'WHATSAPP', 'IN_APP', 'BROWSER')),
+        status VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'SENT', 'DELIVERED', 'FAILED', 'BOUNCED')),
+        message_type VARCHAR(100),
+        recipient VARCHAR(255),
+        message_content TEXT,
+        error_message TEXT,
+        external_id VARCHAR(255),
+        sent_at TIMESTAMP,
+        delivered_at TIMESTAMP,
+        read_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Notification Delivery Logs table created');
+
+    // Phone Verification Tokens table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS phone_verification_tokens (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        phone_number VARCHAR(20) NOT NULL,
+        token VARCHAR(6) NOT NULL,
+        verified BOOLEAN DEFAULT false,
+        attempts INT DEFAULT 0,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Phone Verification Tokens table created');
+
     // Create indexes for better query performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_deliveries_customer ON deliveries(customer_id);
@@ -358,6 +419,13 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_notifications_delivery ON notifications(delivery_id);
       CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
       CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
+      CREATE INDEX IF NOT EXISTS idx_user_preferences_user ON user_notification_preferences(user_id);
+      CREATE INDEX IF NOT EXISTS idx_delivery_logs_user ON notification_delivery_logs(user_id);
+      CREATE INDEX IF NOT EXISTS idx_delivery_logs_channel ON notification_delivery_logs(channel);
+      CREATE INDEX IF NOT EXISTS idx_delivery_logs_status ON notification_delivery_logs(status);
+      CREATE INDEX IF NOT EXISTS idx_delivery_logs_created ON notification_delivery_logs(created_at);
+      CREATE INDEX IF NOT EXISTS idx_phone_tokens_user ON phone_verification_tokens(user_id);
+      CREATE INDEX IF NOT EXISTS idx_phone_tokens_phone ON phone_verification_tokens(phone_number);
     `);
     console.log('✅ Database indexes created');
 

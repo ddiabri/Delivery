@@ -21,6 +21,7 @@ import PointsHistoryPage from './pages/PointsHistoryPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import AdminCampaignPage from './pages/AdminCampaignPage';
 import ProofOfDeliveryPage from './pages/ProofOfDeliveryPage';
+import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
 import './App.css';
 
 function App() {
@@ -163,6 +164,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <LeaderboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/notification-preferences"
+              element={
+                <ProtectedRoute>
+                  <NotificationPreferencesPage />
                 </ProtectedRoute>
               }
             />

@@ -24,6 +24,7 @@ import guestDeliveryRoutes from './src/routes/guestDeliveryRoutes.js';
 import pointsRoutes from './src/routes/pointsRoutes.js';
 import campaignRoutes from './src/routes/campaignRoutes.js';
 import proofOfDeliveryRoutes from './src/routes/proofOfDeliveryRoutes.js';
+import notificationPreferencesRoutes from './src/routes/notificationPreferencesRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 import { initializeWebSocket } from './src/utils/notificationService.js';
 
@@ -98,6 +99,7 @@ app.use('/api/guest', guestDeliveryRoutes);
 app.use('/api/points', pointsRoutes);
 app.use('/api/admin', campaignRoutes);
 app.use('/api/pod', proofOfDeliveryRoutes);
+app.use('/api/notification-preferences', notificationPreferencesRoutes);
 
 // Initialize WebSocket for notifications
 initializeWebSocket(io);

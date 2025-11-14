@@ -4,6 +4,7 @@ import { useAuth } from '../context/authContext';
 import { useDelivery } from '../context/deliveryContext';
 import DriverQRCodeScanner from '../components/DriverQRCodeScanner';
 import DriverQRCodeDisplay from '../components/DriverQRCodeDisplay';
+import DriverWalletPassButtons from '../components/DriverWalletPassButtons';
 import PointsDashboard from '../components/PointsDashboard';
 import NotificationCenter from '../components/NotificationCenter';
 import '../styles/dashboard.css';
@@ -110,10 +111,13 @@ export default function DashboardPage() {
 
           {/* Driver QR Code Section */}
           {user?.role === 'driver' && user?.id && (
-            <DriverQRCodeDisplay
-              driverId={user.id}
-              driverName={user.full_name}
-            />
+            <>
+              <DriverQRCodeDisplay
+                driverId={user.id}
+                driverName={user.full_name}
+              />
+              <DriverWalletPassButtons driverId={user.id} />
+            </>
           )}
 
           {/* Points Dashboard Section */}

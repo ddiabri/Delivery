@@ -1,0 +1,161 @@
+/* Delivery Map Styles */
+
+.delivery-map {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-header {
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Simple Map */
+.simple-map .route-display {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.location-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.location-point.pickup {
+  border-left: 4px solid #2196f3;
+}
+
+.location-point.driver {
+  border-left: 4px solid #ff9800;
+}
+
+.location-point.delivery {
+  border-left: 4px solid #4caf50;
+}
+
+.location-point .icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.location-info {
+  flex: 1;
+}
+
+.location-info strong {
+  display: block;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.location-info small {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  word-break: break-word;
+}
+
+/* Route Line */
+.route-line {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.inactive-route,
+.active-route,
+.completed-route {
+  height: 100%;
+  width: 4px;
+  border-radius: 2px;
+}
+
+.inactive-route {
+  background-color: #ddd;
+}
+
+.active-route {
+  background: linear-gradient(180deg, #2196f3 0%, #4caf50 100%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.completed-route {
+  background-color: #4caf50;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Map Info */
+.map-info {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+}
+
+.map-info p {
+  margin: 8px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.map-info p:first-child {
+  margin-top: 0;
+}
+
+.map-note {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Placeholder */
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #999;
+  font-size: 14px;
+  padding: 24px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .simple-map .route-display {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .location-point {
+    padding: 10px;
+  }
+
+  .location-point .icon {
+    font-size: 20px;
+  }
+
+  .route-line {
+    height: 40px;
+  }
+}

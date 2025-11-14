@@ -11,6 +11,8 @@ import DeliveryDetailPage from './pages/DeliveryDetailPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminDeliveriesPage from './pages/AdminDeliveriesPage';
+import AdminReviewsPage from './pages/AdminReviewsPage';
+import DriverDashboardPage from './pages/DriverDashboardPage';
 import './App.css';
 
 function App() {
@@ -87,6 +89,25 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminDeliveriesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/reviews"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminReviewsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Driver routes */}
+            <Route
+              path="/driver/analytics"
+              element={
+                <ProtectedRoute requiredRole="driver">
+                  <DriverDashboardPage />
                 </ProtectedRoute>
               }
             />

@@ -95,6 +95,8 @@ const createTables = async (client) => {
           'PENDING', 'ACCEPTED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'
         )),
         priority VARCHAR(50) DEFAULT 'NORMAL' CHECK (priority IN ('LOW', 'NORMAL', 'HIGH', 'URGENT')),
+        scheduled_pickup_time TIMESTAMP,
+        scheduled_delivery_time TIMESTAMP,
         estimated_delivery_time TIMESTAMP,
         actual_delivery_time TIMESTAMP,
         special_instructions TEXT,
@@ -149,6 +151,35 @@ const createTables = async (client) => {
       );
     `);
     console.log('✅ Messages table created');
+
+    // Notifications table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        delivery_id UUID REFERENCES deliveries(id) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        body TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Notifications table created');
+
+    // Email Logs table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS email_logs (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        delivery_id UUID REFERENCES deliveries(id) ON DELETE CASCADE,
+        email VARCHAR(255) NOT NULL,
+        subject VARCHAR(255) NOT NULL,
+        template VARCHAR(50) NOT NULL,
+        sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Email Logs table created');
 
     // Create indexes for better query performance
     await client.query(`

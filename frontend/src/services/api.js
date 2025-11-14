@@ -159,4 +159,13 @@ export const adminAPI = {
     apiClient.put(`/admin/deliveries/${deliveryId}/cancel`, data),
 };
 
+export const qrCodeAPI = {
+  generateQRCode: (deliveryId) =>
+    apiClient.post(`/qr-code/${deliveryId}/generate`),
+  verifyQRCodePickup: (deliveryId, qrData) =>
+    apiClient.post('/qr-code/verify-pickup', { deliveryId, qrData }),
+  getQRCodeInfo: (deliveryId) =>
+    apiClient.get(`/qr-code/${deliveryId}/info`),
+};
+
 export default apiClient;

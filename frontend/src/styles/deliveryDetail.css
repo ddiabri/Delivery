@@ -391,6 +391,29 @@
   cursor: not-allowed;
 }
 
+.btn-scan-qr {
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-scan-qr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
+}
+
+.btn-scan-qr:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .completed-badge {
   background-color: #d4edda;
   border: 2px solid #c3e6cb;

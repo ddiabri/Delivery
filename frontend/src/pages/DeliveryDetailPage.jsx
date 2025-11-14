@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { useDelivery } from '../context/deliveryContext';
-import { getSocket, reviewAPI } from '../services/api';
+import { getSocket, reviewAPI, qrCodeAPI } from '../services/api';
 import RatingForm from '../components/RatingForm';
 import ReviewsList from '../components/ReviewsList';
 import DriverRating from '../components/DriverRating';
 import Chat from '../components/Chat';
+import QRCodeDisplay from '../components/QRCodeDisplay';
+import QRCodeScanner from '../components/QRCodeScanner';
 import '../styles/deliveryDetail.css';
 
 export default function DeliveryDetailPage() {
@@ -21,6 +23,7 @@ export default function DeliveryDetailPage() {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   const socket = getSocket();
 
@@ -85,6 +88,19 @@ export default function DeliveryDetailPage() {
       setError(err.response?.data?.error || 'Failed to update delivery');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleQRCodeVerified = async () => {
+    try {
+      // Update delivery status to PICKED_UP after successful QR verification
+      await updateDeliveryStatus(currentDelivery.id, 'PICKED_UP');
+      setShowQRScanner(false);
+      setError('');
+      // Refresh delivery details
+      await fetchDeliveryById(id);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to update delivery status');
     }
   };
 
@@ -239,6 +255,14 @@ export default function DeliveryDetailPage() {
               )}
             </div>
 
+            {/* QR Code Display (Customer View) */}
+            {isCustomer && ['ACCEPTED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'].includes(currentDelivery.status) && (
+              <QRCodeDisplay
+                deliveryId={id}
+                deliveryData={currentDelivery}
+              />
+            )}
+
             {/* Contact Information */}
             <div className="card">
               <h2>👤 Contact Information</h2>
@@ -330,6 +354,18 @@ export default function DeliveryDetailPage() {
               </p>
             </div>
 
+            {/* QR Code Scanner Button (Driver View) */}
+            {isDriver && canUpdateStatus && currentDelivery.status === 'ACCEPTED' && (
+              <div className="action-button">
+                <button
+                  className="btn-scan-qr"
+                  onClick={() => setShowQRScanner(true)}
+                >
+                  📱 Scan QR Code for Pickup
+                </button>
+              </div>
+            )}
+
             {/* Driver Location (if in transit) */}
             {driverLocation && isCustomer && (
               <div className="card">
@@ -419,6 +455,15 @@ export default function DeliveryDetailPage() {
             setShowRatingForm(false);
             fetchReviews();
           }}
+        />
+      )}
+
+      {/* QR Code Scanner Modal */}
+      {showQRScanner && isDriver && (
+        <QRCodeScanner
+          deliveryId={id}
+          onClose={() => setShowQRScanner(false)}
+          onSuccess={handleQRCodeVerified}
         />
       )}
     </div>

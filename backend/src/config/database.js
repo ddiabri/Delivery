@@ -95,6 +95,9 @@ const createTables = async (client) => {
           'PENDING', 'ACCEPTED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'
         )),
         priority VARCHAR(50) DEFAULT 'NORMAL' CHECK (priority IN ('LOW', 'NORMAL', 'HIGH', 'URGENT')),
+        qr_code_token VARCHAR(100) UNIQUE,
+        qr_code_scanned_at TIMESTAMP,
+        qr_code_scanned_by UUID REFERENCES users(id) ON DELETE SET NULL,
         scheduled_pickup_time TIMESTAMP,
         scheduled_delivery_time TIMESTAMP,
         estimated_delivery_time TIMESTAMP,

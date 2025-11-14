@@ -18,6 +18,7 @@ import reviewRoutes from './src/routes/reviewRoutes.js';
 import chatRoutes from './src/routes/chatRoutes.js';
 import adminRoutes from './src/routes/adminRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
+import qrCodeRoutes from './src/routes/qrCodeRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 
 // Load environment variables
@@ -85,6 +86,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/qr-code', qrCodeRoutes);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers

@@ -51,7 +51,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests and api calls for now (handled by app)
+  // Skip non-GET requests - they are handled by the app's offline queue (fetchWrapper.js)
+  // This allows POST/PUT/DELETE to be queued with proper body handling
   if (request.method !== 'GET') {
     return;
   }

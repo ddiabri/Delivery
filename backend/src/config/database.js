@@ -383,6 +383,106 @@ const createTables = async (client) => {
     `);
     console.log('✅ Phone Verification Tokens table created');
 
+    // Scheduled Deliveries table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS scheduled_deliveries (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        customer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        pickup_address TEXT NOT NULL,
+        pickup_location GEOGRAPHY(POINT, 4326) NOT NULL,
+        delivery_address TEXT NOT NULL,
+        delivery_location GEOGRAPHY(POINT, 4326) NOT NULL,
+        package_description TEXT,
+        package_weight DECIMAL(10, 2),
+        package_dimensions TEXT,
+        priority VARCHAR(50) DEFAULT 'NORMAL' CHECK (priority IN ('LOW', 'NORMAL', 'HIGH', 'URGENT')),
+        scheduled_pickup_time TIMESTAMP NOT NULL,
+        scheduled_delivery_time TIMESTAMP NOT NULL,
+        special_instructions TEXT,
+        status VARCHAR(50) DEFAULT 'SCHEDULED' CHECK (status IN ('SCHEDULED', 'CONFIRMED', 'CANCELLED', 'CONVERTED')),
+        converted_delivery_id UUID REFERENCES deliveries(id) ON DELETE SET NULL,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Scheduled Deliveries table created');
+
+    // Delivery Preferences table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS delivery_preferences (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        user_type VARCHAR(50) NOT NULL CHECK (user_type IN ('customer', 'driver')),
+        preferred_days_of_week JSONB DEFAULT '["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]',
+        preferred_time_windows JSONB DEFAULT '[{"start": "08:00", "end": "18:00"}]',
+        excluded_locations JSONB DEFAULT '[]',
+        preferred_locations JSONB DEFAULT '[]',
+        max_weight_preference DECIMAL(10, 2),
+        delivery_radius_km DECIMAL(10, 2),
+        require_signature BOOLEAN DEFAULT true,
+        allow_cash_payment BOOLEAN DEFAULT false,
+        special_instructions TEXT,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Delivery Preferences table created');
+
+    // Promotion Banners table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS promotion_banners (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        campaign_id UUID REFERENCES marketing_campaigns(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        image_url VARCHAR(500),
+        background_color VARCHAR(20),
+        text_color VARCHAR(20),
+        banner_type VARCHAR(50) NOT NULL CHECK (banner_type IN ('DISCOUNT', 'POINTS_BONUS', 'FREE_DELIVERY', 'NEW_FEATURE', 'ANNOUNCEMENT')),
+        target_user_type VARCHAR(50) NOT NULL CHECK (target_user_type IN ('ALL', 'CUSTOMER', 'DRIVER')),
+        call_to_action_text VARCHAR(100),
+        call_to_action_link VARCHAR(500),
+        is_active BOOLEAN DEFAULT true,
+        priority INTEGER DEFAULT 0,
+        start_date TIMESTAMP NOT NULL,
+        end_date TIMESTAMP NOT NULL,
+        dismissed_by_users JSONB DEFAULT '[]',
+        created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Promotion Banners table created');
+
+    // Bulk Messages table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS bulk_messages (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        campaign_id UUID REFERENCES marketing_campaigns(id) ON DELETE CASCADE,
+        created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        message_type VARCHAR(50) NOT NULL CHECK (message_type IN ('SMS', 'WHATSAPP', 'EMAIL')),
+        target_user_type VARCHAR(50) NOT NULL CHECK (target_user_type IN ('ALL', 'CUSTOMER', 'DRIVER', 'CUSTOM')),
+        target_user_ids JSONB DEFAULT '[]',
+        status VARCHAR(50) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'QUEUED', 'SENDING', 'SENT', 'COMPLETED', 'FAILED')),
+        message_subject VARCHAR(255),
+        message_template VARCHAR(1000) NOT NULL,
+        total_recipients INTEGER DEFAULT 0,
+        sent_count INTEGER DEFAULT 0,
+        failed_count INTEGER DEFAULT 0,
+        bounced_count INTEGER DEFAULT 0,
+        scheduled_send_time TIMESTAMP,
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Bulk Messages table created');
+
     // Create indexes for better query performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_deliveries_customer ON deliveries(customer_id);
@@ -426,6 +526,19 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_delivery_logs_created ON notification_delivery_logs(created_at);
       CREATE INDEX IF NOT EXISTS idx_phone_tokens_user ON phone_verification_tokens(user_id);
       CREATE INDEX IF NOT EXISTS idx_phone_tokens_phone ON phone_verification_tokens(phone_number);
+      CREATE INDEX IF NOT EXISTS idx_scheduled_deliveries_customer ON scheduled_deliveries(customer_id);
+      CREATE INDEX IF NOT EXISTS idx_scheduled_deliveries_driver ON scheduled_deliveries(driver_id);
+      CREATE INDEX IF NOT EXISTS idx_scheduled_deliveries_status ON scheduled_deliveries(status);
+      CREATE INDEX IF NOT EXISTS idx_scheduled_deliveries_time ON scheduled_deliveries(scheduled_pickup_time, scheduled_delivery_time);
+      CREATE INDEX IF NOT EXISTS idx_delivery_preferences_user ON delivery_preferences(user_id);
+      CREATE INDEX IF NOT EXISTS idx_delivery_preferences_type ON delivery_preferences(user_type);
+      CREATE INDEX IF NOT EXISTS idx_promotion_banners_campaign ON promotion_banners(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_promotion_banners_active ON promotion_banners(is_active);
+      CREATE INDEX IF NOT EXISTS idx_promotion_banners_dates ON promotion_banners(start_date, end_date);
+      CREATE INDEX IF NOT EXISTS idx_bulk_messages_campaign ON bulk_messages(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_bulk_messages_created_by ON bulk_messages(created_by);
+      CREATE INDEX IF NOT EXISTS idx_bulk_messages_status ON bulk_messages(status);
+      CREATE INDEX IF NOT EXISTS idx_bulk_messages_created ON bulk_messages(created_at);
     `);
     console.log('✅ Database indexes created');
 

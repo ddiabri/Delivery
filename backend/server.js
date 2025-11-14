@@ -25,6 +25,10 @@ import pointsRoutes from './src/routes/pointsRoutes.js';
 import campaignRoutes from './src/routes/campaignRoutes.js';
 import proofOfDeliveryRoutes from './src/routes/proofOfDeliveryRoutes.js';
 import notificationPreferencesRoutes from './src/routes/notificationPreferencesRoutes.js';
+import deliverySchedulingRoutes from './src/routes/deliverySchedulingRoutes.js';
+import deliveryPreferencesRoutes from './src/routes/deliveryPreferencesRoutes.js';
+import bulkMessagingRoutes from './src/routes/bulkMessagingRoutes.js';
+import promotionBannersRoutes from './src/routes/promotionBannersRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 import { initializeWebSocket } from './src/utils/notificationService.js';
 
@@ -100,6 +104,10 @@ app.use('/api/points', pointsRoutes);
 app.use('/api/admin', campaignRoutes);
 app.use('/api/pod', proofOfDeliveryRoutes);
 app.use('/api/notification-preferences', notificationPreferencesRoutes);
+app.use('/api/scheduled-deliveries', deliverySchedulingRoutes);
+app.use('/api/delivery-preferences', deliveryPreferencesRoutes);
+app.use('/api/bulk-messages', bulkMessagingRoutes);
+app.use('/api/banners', promotionBannersRoutes);
 
 // Initialize WebSocket for notifications
 initializeWebSocket(io);

@@ -9,7 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // Import database and routes
-import { testConnection, initializeDatabase } from './src/config/database.js';
+import { testConnection, initializeDatabase, query } from './src/config/database.js';
 import { advancedRateLimitMiddleware } from './src/middleware/advancedRateLimiter.js';
 import authRoutes from './src/routes/authRoutes.js';
 import deliveryRoutes from './src/routes/deliveryRoutes.js';
@@ -31,6 +31,8 @@ import bulkMessagingRoutes from './src/routes/bulkMessagingRoutes.js';
 import promotionBannersRoutes from './src/routes/promotionBannersRoutes.js';
 import rateLimitRoutes from './src/routes/rateLimitRoutes.js';
 import walletRoutes from './src/routes/walletRoutes.js';
+import geofencingRoutes from './src/routes/geofencingRoutes.js';
+import { checkGeofenceEvents } from './src/utils/geofencingService.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 import { initializeWebSocket } from './src/utils/notificationService.js';
 
@@ -107,6 +109,7 @@ app.use('/api/bulk-messages', bulkMessagingRoutes);
 app.use('/api/banners', promotionBannersRoutes);
 app.use('/api/rate-limit', rateLimitRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/geofencing', geofencingRoutes);
 
 // Initialize WebSocket for notifications
 initializeWebSocket(io);
@@ -130,7 +133,7 @@ io.on('connection', (socket) => {
   });
 
   // Driver location updates
-  socket.on('driver:location', (data) => {
+  socket.on('driver:location', async (data) => {
     const { driverId, latitude, longitude, bearing, speed } = data;
 
     // Store driver connection
@@ -152,6 +155,30 @@ io.on('connection', (socket) => {
       speed,
       timestamp: new Date()
     });
+
+    // Check for geofence events
+    try {
+      const deliveryResult = await query(
+        `SELECT id, customer_id FROM deliveries
+         WHERE driver_id = $1 AND status = 'ASSIGNED'
+         LIMIT 1`,
+        [driverId]
+      );
+
+      if (deliveryResult.rows.length > 0) {
+        const delivery = deliveryResult.rows[0];
+        await checkGeofenceEvents(
+          driverId,
+          delivery.id,
+          delivery.customer_id,
+          latitude,
+          longitude,
+          io
+        );
+      }
+    } catch (err) {
+      console.error('Error checking geofence events:', err);
+    }
 
     console.log(`[Socket.IO] Driver ${driverId} location updated`);
   });

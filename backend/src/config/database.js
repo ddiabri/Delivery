@@ -488,6 +488,41 @@ const createTables = async (client) => {
     await client.query(walletSchemaSQL);
     console.log('✅ Wallet tables created');
 
+    // Geofence Events table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS geofence_events (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        delivery_id UUID NOT NULL REFERENCES deliveries(id) ON DELETE CASCADE,
+        driver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        customer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        event_type VARCHAR(50) NOT NULL CHECK (event_type IN ('APPROACHING', 'ARRIVED', 'DEPARTED', 'RADIUS_EXCEEDED')),
+        latitude DECIMAL(10, 8),
+        longitude DECIMAL(11, 8),
+        distance_meters DECIMAL(10, 2),
+        geofence_radius_meters INTEGER DEFAULT 500,
+        notification_sent BOOLEAN DEFAULT false,
+        customer_notified_at TIMESTAMP,
+        driver_notified_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Geofence Events table created');
+
+    // Geofence Zones table (for defining custom zones)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS geofence_zones (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        delivery_id UUID UNIQUE REFERENCES deliveries(id) ON DELETE CASCADE,
+        pickup_radius_meters INTEGER DEFAULT 500,
+        delivery_radius_meters INTEGER DEFAULT 500,
+        delivery_location GEOGRAPHY(POINT, 4326) NOT NULL,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Geofence Zones table created');
+
     // Rate Limit Tracking table
     await client.query(`
       CREATE TABLE IF NOT EXISTS rate_limit_tracking (
@@ -601,6 +636,12 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_whitelist_ip ON ip_whitelist(ip_address);
       CREATE INDEX IF NOT EXISTS idx_analytics_endpoint ON rate_limit_analytics(endpoint);
       CREATE INDEX IF NOT EXISTS idx_analytics_date ON rate_limit_analytics(date_recorded);
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_delivery ON geofence_events(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_driver ON geofence_events(driver_id);
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_type ON geofence_events(event_type);
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_created ON geofence_events(created_at);
+      CREATE INDEX IF NOT EXISTS idx_geofence_zones_delivery ON geofence_zones(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_geofence_zones_active ON geofence_zones(is_active);
     `);
     console.log('✅ Database indexes created');
 

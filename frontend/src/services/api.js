@@ -168,4 +168,13 @@ export const qrCodeAPI = {
     apiClient.get(`/qr-code/${deliveryId}/info`),
 };
 
+export const driverQRCodeAPI = {
+  getDriverQRCode: (driverId, format = 'png') =>
+    apiClient.get(`/driver-qr-code/${driverId}?format=${format}`),
+  verifyDriverQRCode: (qrData) =>
+    apiClient.post('/driver-qr-code/verify', { qrData }),
+  getDriverProfile: (driverId) =>
+    apiClient.get(`/driver-qr-code/${driverId}/profile`),
+};
+
 export default apiClient;

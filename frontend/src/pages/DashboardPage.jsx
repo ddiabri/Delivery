@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { useDelivery } from '../context/deliveryContext';
+import DriverQRCodeScanner from '../components/DriverQRCodeScanner';
+import DriverQRCodeDisplay from '../components/DriverQRCodeDisplay';
 import '../styles/dashboard.css';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { deliveries, fetchDeliveries, loading } = useDelivery();
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   useEffect(() => {
     fetchDeliveries();
@@ -24,6 +27,14 @@ export default function DashboardPage() {
     } else if (user?.role === 'driver') {
       navigate('/available-deliveries');
     }
+  };
+
+  const handleQRCodeScanned = (driverInfo) => {
+    setShowQRScanner(false);
+    // Navigate to request delivery page with driver pre-selected
+    navigate('/request-delivery', {
+      state: { driverInfo }
+    });
   };
 
   const handleViewDelivery = (deliveryId) => {
@@ -94,6 +105,14 @@ export default function DashboardPage() {
             )}
           </section>
 
+          {/* Driver QR Code Section */}
+          {user?.role === 'driver' && user?.id && (
+            <DriverQRCodeDisplay
+              driverId={user.id}
+              driverName={user.full_name}
+            />
+          )}
+
           <section className="deliveries-section">
             <div className="section-header">
               <h2>
@@ -101,15 +120,27 @@ export default function DashboardPage() {
                   ? 'My Deliveries'
                   : 'Available Deliveries'}
               </h2>
-              <button
-                onClick={handleNewDelivery}
-                className="btn-primary"
-                disabled={loading}
-              >
-                {user?.role === 'customer'
-                  ? '+ New Request'
-                  : '+ Find Deliveries'}
-              </button>
+              <div className="header-buttons">
+                {user?.role === 'customer' && (
+                  <button
+                    onClick={() => setShowQRScanner(true)}
+                    className="btn-secondary"
+                    disabled={loading}
+                    title="Scan driver QR code to request delivery"
+                  >
+                    📱 Scan Driver
+                  </button>
+                )}
+                <button
+                  onClick={handleNewDelivery}
+                  className="btn-primary"
+                  disabled={loading}
+                >
+                  {user?.role === 'customer'
+                    ? '+ New Request'
+                    : '+ Find Deliveries'}
+                </button>
+              </div>
             </div>
 
             {loading ? (
@@ -165,6 +196,14 @@ export default function DashboardPage() {
           </section>
         </div>
       </main>
+
+      {/* Driver QR Code Scanner Modal */}
+      {showQRScanner && user?.role === 'customer' && (
+        <DriverQRCodeScanner
+          onClose={() => setShowQRScanner(false)}
+          onSuccess={handleQRCodeScanned}
+        />
+      )}
     </div>
   );
 }

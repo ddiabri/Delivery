@@ -135,6 +135,36 @@
   cursor: not-allowed;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #efefef;
+  border-color: #999;
+  transform: translateY(-2px);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .deliveries-section {
   background: white;
   padding: 24px;

@@ -1,0 +1,188 @@
+/* Driver QR Code Display Styles */
+
+.driver-qr-code-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 30px;
+  color: white;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  margin: 20px 0;
+}
+
+.driver-qr-code-display.loading,
+.driver-qr-code-display.error {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  color: #333;
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.driver-qr-code-display .loading {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.driver-qr-code-display .error {
+  color: #c33;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.driver-qr-code-display .btn-retry {
+  background-color: #f44;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.driver-qr-code-display .btn-retry:hover {
+  background-color: #d33;
+  transform: translateY(-2px);
+}
+
+.qr-content {
+  text-align: center;
+}
+
+.qr-content h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.qr-content .subtitle {
+  margin: 0 0 24px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.qr-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.qr-image {
+  width: 250px;
+  height: 250px;
+  display: block;
+  margin: 0 auto;
+}
+
+.qr-info {
+  margin: 20px 0;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.qr-info .info-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.qr-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.qr-actions button {
+  padding: 10px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.qr-actions button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-download,
+.btn-copy,
+.btn-refresh {
+  min-width: 100px;
+}
+
+.qr-tips {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 24px;
+  text-align: left;
+  backdrop-filter: blur(10px);
+}
+
+.qr-tips h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.qr-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.qr-tips li {
+  margin: 6px 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .driver-qr-code-display {
+    padding: 20px;
+  }
+
+  .qr-image {
+    width: 200px;
+    height: 200px;
+  }
+
+  .qr-actions {
+    gap: 8px;
+  }
+
+  .qr-actions button {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-width: auto;
+  }
+
+  .qr-tips {
+    padding: 12px;
+  }
+
+  .qr-tips h4 {
+    font-size: 12px;
+  }
+
+  .qr-tips li {
+    font-size: 12px;
+  }
+}

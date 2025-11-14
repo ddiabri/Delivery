@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDelivery } from '../context/deliveryContext';
 import LocationPicker from '../components/LocationPicker';
 import '../styles/requestDelivery.css';
 
 export default function RequestDeliveryPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { createDelivery, loading, error: contextError } = useDelivery();
 
   const [pickupLocation, setPickupLocation] = useState(null);
   const [deliveryLocation, setDeliveryLocation] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const [formData, setFormData] = useState({
     package_description: '',
     package_weight: '',
@@ -18,6 +20,13 @@ export default function RequestDeliveryPage() {
   });
   const [error, setError] = useState('');
   const [step, setStep] = useState(1); // Step 1: Pickup, Step 2: Delivery, Step 3: Details
+
+  // Get driver info from navigation state (from QR code scan)
+  useEffect(() => {
+    if (location.state?.driverInfo) {
+      setSelectedDriver(location.state.driverInfo);
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +83,11 @@ export default function RequestDeliveryPage() {
         priority: formData.priority,
         special_instructions: formData.special_instructions,
       };
+
+      // Add driver_id if driver was selected via QR code
+      if (selectedDriver?.driverId) {
+        deliveryData.driver_id = selectedDriver.driverId;
+      }
 
       await createDelivery(deliveryData);
       navigate('/dashboard');
@@ -146,6 +160,26 @@ export default function RequestDeliveryPage() {
           {step === 3 && (
             <div className="form-step">
               <h2>📦 Package Details</h2>
+
+              {/* Selected Driver Info */}
+              {selectedDriver && (
+                <div className="selected-driver-info">
+                  <h3>👤 Selected Driver</h3>
+                  <div className="driver-details">
+                    <div className="driver-name">{selectedDriver.driverName}</div>
+                    <div className="driver-rating">
+                      ⭐ Rating: {selectedDriver.driverRating.toFixed(1)}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-change-driver"
+                    onClick={() => setSelectedDriver(null)}
+                  >
+                    Change Driver
+                  </button>
+                </div>
+              )}
 
               <div className="location-summary">
                 <div className="location-item">

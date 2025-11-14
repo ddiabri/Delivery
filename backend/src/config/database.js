@@ -82,7 +82,7 @@ const createTables = async (client) => {
     await client.query(`
       CREATE TABLE IF NOT EXISTS deliveries (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        customer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
         driver_id UUID REFERENCES users(id) ON DELETE SET NULL,
         pickup_address TEXT NOT NULL,
         pickup_location GEOGRAPHY(POINT, 4326) NOT NULL,
@@ -98,6 +98,10 @@ const createTables = async (client) => {
         qr_code_token VARCHAR(100) UNIQUE,
         qr_code_scanned_at TIMESTAMP,
         qr_code_scanned_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        guest_name VARCHAR(255),
+        guest_email VARCHAR(255),
+        guest_phone VARCHAR(20),
+        guest_token VARCHAR(100) UNIQUE,
         scheduled_pickup_time TIMESTAMP,
         scheduled_delivery_time TIMESTAMP,
         estimated_delivery_time TIMESTAMP,

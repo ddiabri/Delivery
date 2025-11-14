@@ -177,4 +177,13 @@ export const driverQRCodeAPI = {
     apiClient.get(`/driver-qr-code/${driverId}/profile`),
 };
 
+export const guestDeliveryAPI = {
+  createGuestDelivery: (data) =>
+    apiClient.post('/guest/deliveries', data),
+  getGuestDelivery: (deliveryId, token) =>
+    apiClient.get(`/guest/deliveries/${deliveryId}?token=${token}`),
+  cancelGuestDelivery: (deliveryId, token) =>
+    apiClient.post(`/guest/deliveries/${deliveryId}/cancel`, { token }),
+};
+
 export default apiClient;

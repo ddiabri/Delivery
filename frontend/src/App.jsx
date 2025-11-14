@@ -13,6 +13,9 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import AdminDeliveriesPage from './pages/AdminDeliveriesPage';
 import AdminReviewsPage from './pages/AdminReviewsPage';
 import DriverDashboardPage from './pages/DriverDashboardPage';
+import GuestRequestDeliveryPage from './pages/GuestRequestDeliveryPage';
+import GuestDeliveryTrackingPage from './pages/GuestDeliveryTrackingPage';
+import HomePage from './pages/HomePage';
 import './App.css';
 
 function App() {
@@ -24,6 +27,8 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/guest/request" element={<GuestRequestDeliveryPage />} />
+            <Route path="/guest/delivery/:deliveryId" element={<GuestDeliveryTrackingPage />} />
 
             {/* Protected routes */}
             <Route
@@ -112,11 +117,11 @@ function App() {
               }
             />
 
-            {/* Redirect to dashboard by default */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Home page - show for all users */}
+            <Route path="/" element={<HomePage />} />
 
             {/* 404 - Not found */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </DeliveryProvider>
       </AuthProvider>

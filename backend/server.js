@@ -20,6 +20,7 @@ import adminRoutes from './src/routes/adminRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import qrCodeRoutes from './src/routes/qrCodeRoutes.js';
 import driverQRCodeRoutes from './src/routes/driverQRCodeRoutes.js';
+import guestDeliveryRoutes from './src/routes/guestDeliveryRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 
 // Load environment variables
@@ -89,6 +90,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/qr-code', qrCodeRoutes);
 app.use('/api/driver-qr-code', driverQRCodeRoutes);
+app.use('/api/guest', guestDeliveryRoutes);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers

@@ -146,4 +146,17 @@ export const messageAPI = {
     apiClient.put(`/messages/${deliveryId}/mark-read`),
 };
 
+export const adminAPI = {
+  getDashboardStats: () => apiClient.get('/admin/dashboard'),
+  getAllUsers: (params) => apiClient.get('/admin/users', { params }),
+  getAllDeliveries: (params) => apiClient.get('/admin/deliveries', { params }),
+  getDriverAnalytics: () => apiClient.get('/admin/drivers/analytics'),
+  getReviewsForModeration: (params) =>
+    apiClient.get('/admin/reviews/moderation', { params }),
+  getDeliveryStats: (params) => apiClient.get('/admin/stats/deliveries', { params }),
+  deactivateUser: (userId) => apiClient.put(`/admin/users/${userId}/deactivate`),
+  cancelDelivery: (deliveryId, data) =>
+    apiClient.put(`/admin/deliveries/${deliveryId}/cancel`, data),
+};
+
 export default apiClient;

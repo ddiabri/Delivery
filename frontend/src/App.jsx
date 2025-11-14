@@ -8,6 +8,9 @@ import DashboardPage from './pages/DashboardPage';
 import RequestDeliveryPage from './pages/RequestDeliveryPage';
 import AvailableDeliveriesPage from './pages/AvailableDeliveriesPage';
 import DeliveryDetailPage from './pages/DeliveryDetailPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminDeliveriesPage from './pages/AdminDeliveriesPage';
 import './App.css';
 
 function App() {
@@ -56,6 +59,34 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DeliveryDetailPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/deliveries"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDeliveriesPage />
                 </ProtectedRoute>
               }
             />

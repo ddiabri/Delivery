@@ -16,6 +16,7 @@ import deliveryRoutes from './src/routes/deliveryRoutes.js';
 import driverRoutes from './src/routes/driverRoutes.js';
 import reviewRoutes from './src/routes/reviewRoutes.js';
 import chatRoutes from './src/routes/chatRoutes.js';
+import adminRoutes from './src/routes/adminRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 
 // Load environment variables
@@ -81,6 +82,7 @@ app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers

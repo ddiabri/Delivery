@@ -186,4 +186,46 @@ export const guestDeliveryAPI = {
     apiClient.post(`/guest/deliveries/${deliveryId}/cancel`, { token }),
 };
 
+export const pointsAPI = {
+  getUserPoints: (userId) =>
+    apiClient.get(`/points/user/${userId}`),
+  getUserPointsHistory: (userId, limit = 50, offset = 0) =>
+    apiClient.get(`/points/history/${userId}?limit=${limit}&offset=${offset}`),
+  getAvailableRewards: (userId) =>
+    apiClient.get(`/points/rewards/available/${userId}`),
+  redeemReward: (userId, rewardId) =>
+    apiClient.post('/points/rewards/redeem', { userId, rewardId }),
+  getRedeemedRewards: (userId) =>
+    apiClient.get(`/points/rewards/history/${userId}`),
+  getLeaderboards: (type = 'customers') =>
+    apiClient.get(`/points/leaderboards?type=${type}`),
+};
+
+export const campaignAPI = {
+  createCampaign: (data) =>
+    apiClient.post('/admin/campaigns', data),
+  getAllCampaigns: (active = null) =>
+    apiClient.get(`/admin/campaigns${active ? `?active=${active}` : ''}`),
+  updateCampaign: (campaignId, data) =>
+    apiClient.put(`/admin/campaigns/${campaignId}`, data),
+  deleteCampaign: (campaignId) =>
+    apiClient.delete(`/admin/campaigns/${campaignId}`),
+  createCampaignRule: (campaignId, data) =>
+    apiClient.post(`/admin/campaigns/${campaignId}/rules`, data),
+  updateCampaignRule: (campaignId, ruleId, data) =>
+    apiClient.put(`/admin/campaigns/${campaignId}/rules/${ruleId}`, data),
+  assignCampaignToUsers: (campaignId, userIds) =>
+    apiClient.post(`/admin/campaigns/${campaignId}/assign-users`, { userIds }),
+  getCampaignUsers: (campaignId, limit = 100, offset = 0) =>
+    apiClient.get(`/admin/campaigns/${campaignId}/users?limit=${limit}&offset=${offset}`),
+  createReward: (data) =>
+    apiClient.post('/admin/rewards', data),
+  getAllRewards: () =>
+    apiClient.get('/admin/rewards'),
+  updateReward: (rewardId, data) =>
+    apiClient.put(`/admin/rewards/${rewardId}`, data),
+  deleteReward: (rewardId) =>
+    apiClient.delete(`/admin/rewards/${rewardId}`),
+};
+
 export default apiClient;

@@ -16,6 +16,10 @@ import DriverDashboardPage from './pages/DriverDashboardPage';
 import GuestRequestDeliveryPage from './pages/GuestRequestDeliveryPage';
 import GuestDeliveryTrackingPage from './pages/GuestDeliveryTrackingPage';
 import HomePage from './pages/HomePage';
+import RewardsMarketplacePage from './pages/RewardsMarketplacePage';
+import PointsHistoryPage from './pages/PointsHistoryPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import AdminCampaignPage from './pages/AdminCampaignPage';
 import './App.css';
 
 function App() {
@@ -103,6 +107,52 @@ function App() {
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminReviewsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/campaigns"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminCampaignPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Points and Rewards routes */}
+            <Route
+              path="/rewards"
+              element={
+                <ProtectedRoute>
+                  <RewardsMarketplacePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/rewards/history"
+              element={
+                <ProtectedRoute>
+                  <RewardsMarketplacePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/points/history"
+              element={
+                <ProtectedRoute>
+                  <PointsHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/leaderboard"
+              element={
+                <ProtectedRoute>
+                  <LeaderboardPage />
                 </ProtectedRoute>
               }
             />

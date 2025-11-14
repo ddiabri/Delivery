@@ -1,0 +1,521 @@
+/* Leaderboard Page Styles */
+
+.leaderboard-page {
+  min-height: 100vh;
+  background-color: #f5f6fa;
+  padding-bottom: 40px;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+}
+
+.header-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.leaderboard-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error-message {
+  background-color: #fee;
+  border-left: 4px solid #f44;
+  color: #c33;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-message p {
+  margin: 0;
+}
+
+.btn-retry {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Type Selector */
+.type-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 40px;
+  justify-content: center;
+}
+
+.type-btn {
+  padding: 12px 24px;
+  background-color: white;
+  color: #666;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.type-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+  background-color: #f8f9ff;
+}
+
+.type-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* User Rank Section */
+.user-rank-section {
+  margin-bottom: 40px;
+}
+
+.user-rank-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 32px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+}
+
+.rank-position {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.position-number {
+  display: block;
+  font-size: 48px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.position-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+.rank-info {
+  flex: 1;
+}
+
+.rank-name {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.rank-tier {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.rank-points {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.rank-points .points-label {
+  font-size: 12px;
+  margin-bottom: 4px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.rank-points .points-value {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+/* Top Rankings */
+.top-rankings {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.top-rankings h2 {
+  margin: 0 0 24px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.rankings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  gap: 16px;
+}
+
+.ranking-item:hover {
+  background-color: #f0f1ff;
+  transform: translateX(4px);
+}
+
+.ranking-item.current-user {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-left: 4px solid #667eea;
+}
+
+.ranking-item.top-three {
+  background-color: white;
+  border: 2px solid #FFD700;
+}
+
+.ranking-position {
+  flex-shrink: 0;
+}
+
+.medal {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+}
+
+.medal-1 {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.medal-2 {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+  box-shadow: 0 4px 12px rgba(192, 192, 192, 0.4);
+}
+
+.medal-3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.4);
+}
+
+.ranking-info {
+  flex: 1;
+}
+
+.ranking-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-badge {
+  background-color: #667eea;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ranking-tier {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #999;
+}
+
+.ranking-points {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.ranking-points .points-value {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #667eea;
+}
+
+.ranking-points .points-label {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.ranking-trophy {
+  flex-shrink: 0;
+  font-size: 24px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.empty-icon {
+  margin: 0 0 16px;
+  font-size: 64px;
+  display: block;
+}
+
+.empty-text {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Leaderboard Info */
+.leaderboard-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-card h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.info-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.info-card li {
+  padding: 12px 0;
+  color: #666;
+  font-size: 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-card li:last-child {
+  border-bottom: none;
+}
+
+.tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tier-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.tier-badge {
+  font-weight: 700;
+  color: #333;
+}
+
+.tier-range {
+  color: #999;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .page-header h1 {
+    flex: none;
+  }
+
+  .leaderboard-container {
+    padding: 20px;
+  }
+
+  .user-rank-card {
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .rank-position {
+    text-align: center;
+  }
+
+  .position-number {
+    font-size: 36px;
+  }
+
+  .rank-points {
+    text-align: center;
+    width: 100%;
+  }
+
+  .ranking-item {
+    flex-wrap: wrap;
+  }
+
+  .ranking-info {
+    flex-basis: 100%;
+    order: 2;
+  }
+
+  .ranking-points {
+    flex: 1;
+    order: 3;
+  }
+
+  .ranking-trophy {
+    order: 4;
+    flex-basis: 100%;
+    text-align: center;
+  }
+
+  .leaderboard-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    padding: 16px;
+  }
+
+  .page-header h1 {
+    font-size: 24px;
+  }
+
+  .leaderboard-container {
+    padding: 16px;
+  }
+
+  .type-selector {
+    flex-direction: column;
+    margin-bottom: 24px;
+  }
+
+  .type-btn {
+    width: 100%;
+  }
+
+  .top-rankings {
+    padding: 16px;
+  }
+
+  .ranking-item {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .medal {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .ranking-name {
+    font-size: 14px;
+  }
+
+  .ranking-points .points-value {
+    font-size: 16px;
+  }
+
+  .user-rank-card {
+    padding: 16px;
+  }
+
+  .info-card {
+    padding: 16px;
+  }
+}

@@ -188,6 +188,122 @@ const createTables = async (client) => {
     `);
     console.log('✅ Email Logs table created');
 
+    // Marketing Campaigns table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS marketing_campaigns (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        campaign_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        campaign_type VARCHAR(50) NOT NULL CHECK (campaign_type IN ('BONUS', 'MULTIPLIER', 'REFERRAL', 'SEASONAL', 'VIP', 'EVENT')),
+        target_user_type VARCHAR(50) NOT NULL CHECK (target_user_type IN ('ALL', 'NEW_USERS', 'VIP', 'DRIVERS', 'CUSTOMERS', 'INACTIVE')),
+        point_multiplier DECIMAL(3, 2) DEFAULT 1.0,
+        conditions JSONB,
+        start_date TIMESTAMP NOT NULL,
+        end_date TIMESTAMP NOT NULL,
+        is_active BOOLEAN DEFAULT true,
+        is_stackable BOOLEAN DEFAULT false,
+        created_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Marketing Campaigns table created');
+
+    // Campaign Rules table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS campaign_rules (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        campaign_id UUID NOT NULL REFERENCES marketing_campaigns(id) ON DELETE CASCADE,
+        action_type VARCHAR(100) NOT NULL,
+        base_points INTEGER NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Campaign Rules table created');
+
+    // User Campaigns table (User enrollments in campaigns)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_campaigns (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        campaign_id UUID NOT NULL REFERENCES marketing_campaigns(id) ON DELETE CASCADE,
+        enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP,
+        is_active BOOLEAN DEFAULT true,
+        UNIQUE(user_id, campaign_id)
+      );
+    `);
+    console.log('✅ User Campaigns table created');
+
+    // User Points table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_points (
+        user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        current_points INTEGER DEFAULT 0,
+        lifetime_points INTEGER DEFAULT 0,
+        tier_level VARCHAR(50) DEFAULT 'BRONZE' CHECK (tier_level IN ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM')),
+        tier_expires_at TIMESTAMP,
+        last_activity_at TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ User Points table created');
+
+    // Points Transactions table (Audit trail)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS points_transactions (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        campaign_id UUID REFERENCES marketing_campaigns(id) ON DELETE SET NULL,
+        delivery_id UUID REFERENCES deliveries(id) ON DELETE SET NULL,
+        action_type VARCHAR(100) NOT NULL,
+        points_earned INTEGER,
+        points_spent INTEGER,
+        reason TEXT,
+        description TEXT,
+        multiplier_applied DECIMAL(3, 2) DEFAULT 1.0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Points Transactions table created');
+
+    // Rewards Catalog table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS rewards_catalog (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        campaign_id UUID REFERENCES marketing_campaigns(id) ON DELETE SET NULL,
+        reward_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        point_cost INTEGER NOT NULL,
+        reward_type VARCHAR(50) NOT NULL CHECK (reward_type IN ('DISCOUNT', 'CREDIT', 'BADGE', 'ACCESS', 'FREE_DELIVERY')),
+        reward_value VARCHAR(255),
+        availability VARCHAR(50) DEFAULT 'UNLIMITED' CHECK (availability IN ('LIMITED', 'UNLIMITED')),
+        quantity_available INTEGER,
+        quantity_redeemed INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Rewards Catalog table created');
+
+    // User Rewards Redeemed table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_rewards_redeemed (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reward_id UUID NOT NULL REFERENCES rewards_catalog(id) ON DELETE CASCADE,
+        points_spent INTEGER NOT NULL,
+        status VARCHAR(50) DEFAULT 'REDEEMED' CHECK (status IN ('REDEEMED', 'USED', 'EXPIRED')),
+        redeemed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        used_at TIMESTAMP,
+        expires_at TIMESTAMP,
+        reference_code VARCHAR(50)
+      );
+    `);
+    console.log('✅ User Rewards Redeemed table created');
+
     // Create indexes for better query performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_deliveries_customer ON deliveries(customer_id);
@@ -204,6 +320,19 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);
       CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at);
       CREATE INDEX IF NOT EXISTS idx_messages_delivery_created ON messages(delivery_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_user_points_user ON user_points(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_points_tier ON user_points(tier_level);
+      CREATE INDEX IF NOT EXISTS idx_points_transactions_user ON points_transactions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_points_transactions_campaign ON points_transactions(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_points_transactions_delivery ON points_transactions(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_points_transactions_created ON points_transactions(created_at);
+      CREATE INDEX IF NOT EXISTS idx_user_campaigns_user ON user_campaigns(user_id);
+      CREATE INDEX IF NOT EXISTS idx_user_campaigns_campaign ON user_campaigns(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_campaign_rules_campaign ON campaign_rules(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_marketing_campaigns_active ON marketing_campaigns(is_active);
+      CREATE INDEX IF NOT EXISTS idx_marketing_campaigns_dates ON marketing_campaigns(start_date, end_date);
+      CREATE INDEX IF NOT EXISTS idx_rewards_catalog_active ON rewards_catalog(is_active);
+      CREATE INDEX IF NOT EXISTS idx_user_rewards_user ON user_rewards_redeemed(user_id);
     `);
     console.log('✅ Database indexes created');
 

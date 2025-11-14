@@ -4,6 +4,7 @@ import { useAuth } from '../context/authContext';
 import { useDelivery } from '../context/deliveryContext';
 import DriverQRCodeScanner from '../components/DriverQRCodeScanner';
 import DriverQRCodeDisplay from '../components/DriverQRCodeDisplay';
+import PointsDashboard from '../components/PointsDashboard';
 import '../styles/dashboard.css';
 
 export default function DashboardPage() {
@@ -112,6 +113,12 @@ export default function DashboardPage() {
               driverName={user.full_name}
             />
           )}
+
+          {/* Points Dashboard Section */}
+          <section className="section-header">
+            <h2>💰 Points & Rewards</h2>
+          </section>
+          <PointsDashboard />
 
           <section className="deliveries-section">
             <div className="section-header">

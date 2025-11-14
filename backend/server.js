@@ -21,6 +21,8 @@ import notificationRoutes from './src/routes/notificationRoutes.js';
 import qrCodeRoutes from './src/routes/qrCodeRoutes.js';
 import driverQRCodeRoutes from './src/routes/driverQRCodeRoutes.js';
 import guestDeliveryRoutes from './src/routes/guestDeliveryRoutes.js';
+import pointsRoutes from './src/routes/pointsRoutes.js';
+import campaignRoutes from './src/routes/campaignRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
 
 // Load environment variables
@@ -91,6 +93,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/qr-code', qrCodeRoutes);
 app.use('/api/driver-qr-code', driverQRCodeRoutes);
 app.use('/api/guest', guestDeliveryRoutes);
+app.use('/api/points', pointsRoutes);
+app.use('/api/admin', campaignRoutes);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers

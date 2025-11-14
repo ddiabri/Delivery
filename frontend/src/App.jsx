@@ -22,6 +22,10 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import AdminCampaignPage from './pages/AdminCampaignPage';
 import ProofOfDeliveryPage from './pages/ProofOfDeliveryPage';
 import NotificationPreferencesPage from './pages/NotificationPreferencesPage';
+import DeliverySchedulingPage from './pages/DeliverySchedulingPage';
+import DeliveryPreferencesPage from './pages/DeliveryPreferencesPage';
+import AdminBulkMessagingPage from './pages/AdminBulkMessagingPage';
+import AdminPromotionBannersPage from './pages/AdminPromotionBannersPage';
 import './App.css';
 
 function App() {
@@ -173,6 +177,43 @@ function App() {
               element={
                 <ProtectedRoute>
                   <NotificationPreferencesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/schedule-delivery"
+              element={
+                <ProtectedRoute requiredRole="customer">
+                  <DeliverySchedulingPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/delivery-preferences"
+              element={
+                <ProtectedRoute>
+                  <DeliveryPreferencesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="/admin/bulk-messaging"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminBulkMessagingPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/promotion-banners"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminPromotionBannersPage />
                 </ProtectedRoute>
               }
             />

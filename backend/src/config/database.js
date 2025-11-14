@@ -304,6 +304,24 @@ const createTables = async (client) => {
     `);
     console.log('✅ User Rewards Redeemed table created');
 
+    // Proof of Delivery table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS proof_of_delivery (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        delivery_id UUID NOT NULL UNIQUE REFERENCES deliveries(id) ON DELETE CASCADE,
+        photo_url VARCHAR(500),
+        signature_url VARCHAR(500),
+        notes TEXT,
+        delivery_lat DECIMAL(10, 8),
+        delivery_lon DECIMAL(11, 8),
+        verified_at TIMESTAMP,
+        verified_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Proof of Delivery table created');
+
     // Create indexes for better query performance
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_deliveries_customer ON deliveries(customer_id);
@@ -333,6 +351,13 @@ const createTables = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_marketing_campaigns_dates ON marketing_campaigns(start_date, end_date);
       CREATE INDEX IF NOT EXISTS idx_rewards_catalog_active ON rewards_catalog(is_active);
       CREATE INDEX IF NOT EXISTS idx_user_rewards_user ON user_rewards_redeemed(user_id);
+      CREATE INDEX IF NOT EXISTS idx_pod_delivery ON proof_of_delivery(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_pod_verified ON proof_of_delivery(verified_at);
+      CREATE INDEX IF NOT EXISTS idx_pod_created ON proof_of_delivery(created_at);
+      CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+      CREATE INDEX IF NOT EXISTS idx_notifications_delivery ON notifications(delivery_id);
+      CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(is_read);
+      CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at);
     `);
     console.log('✅ Database indexes created');
 

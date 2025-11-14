@@ -20,6 +20,7 @@ import RewardsMarketplacePage from './pages/RewardsMarketplacePage';
 import PointsHistoryPage from './pages/PointsHistoryPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import AdminCampaignPage from './pages/AdminCampaignPage';
+import ProofOfDeliveryPage from './pages/ProofOfDeliveryPage';
 import './App.css';
 
 function App() {
@@ -70,6 +71,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DeliveryDetailPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/delivery/:deliveryId/proof-of-delivery"
+              element={
+                <ProtectedRoute requiredRole="driver">
+                  <ProofOfDeliveryPage />
                 </ProtectedRoute>
               }
             />

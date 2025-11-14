@@ -23,7 +23,9 @@ import driverQRCodeRoutes from './src/routes/driverQRCodeRoutes.js';
 import guestDeliveryRoutes from './src/routes/guestDeliveryRoutes.js';
 import pointsRoutes from './src/routes/pointsRoutes.js';
 import campaignRoutes from './src/routes/campaignRoutes.js';
+import proofOfDeliveryRoutes from './src/routes/proofOfDeliveryRoutes.js';
 import { errorHandler } from './src/middleware/authMiddleware.js';
+import { initializeWebSocket } from './src/utils/notificationService.js';
 
 // Load environment variables
 dotenv.config();
@@ -95,12 +97,28 @@ app.use('/api/driver-qr-code', driverQRCodeRoutes);
 app.use('/api/guest', guestDeliveryRoutes);
 app.use('/api/points', pointsRoutes);
 app.use('/api/admin', campaignRoutes);
+app.use('/api/pod', proofOfDeliveryRoutes);
+
+// Initialize WebSocket for notifications
+initializeWebSocket(io);
 
 // WebSocket connection handling
 const connectedDrivers = new Map(); // Track connected drivers
 
 io.on('connection', (socket) => {
   console.log(`[Socket.IO] New client connected: ${socket.id}`);
+
+  // User notification room join
+  socket.on('user:join', (userId) => {
+    socket.join(`user:${userId}`);
+    console.log(`[Socket.IO] User ${userId} joined notification room`);
+  });
+
+  // User notification room leave
+  socket.on('user:leave', (userId) => {
+    socket.leave(`user:${userId}`);
+    console.log(`[Socket.IO] User ${userId} left notification room`);
+  });
 
   // Driver location updates
   socket.on('driver:location', (data) => {

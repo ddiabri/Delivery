@@ -5,6 +5,7 @@ import { useDelivery } from '../context/deliveryContext';
 import DriverQRCodeScanner from '../components/DriverQRCodeScanner';
 import DriverQRCodeDisplay from '../components/DriverQRCodeDisplay';
 import PointsDashboard from '../components/PointsDashboard';
+import NotificationCenter from '../components/NotificationCenter';
 import '../styles/dashboard.css';
 
 export default function DashboardPage() {
@@ -48,6 +49,7 @@ export default function DashboardPage() {
         <div className="header-content">
           <h1>📦 Delivery App</h1>
           <div className="header-actions">
+            <NotificationCenter />
             <span className="user-info">
               {user?.full_name} ({user?.role})
             </span>

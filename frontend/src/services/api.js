@@ -228,4 +228,17 @@ export const campaignAPI = {
     apiClient.delete(`/admin/rewards/${rewardId}`),
 };
 
+export const proofOfDeliveryAPI = {
+  uploadPOD: (deliveryId, formData) =>
+    apiClient.post(`/pod/${deliveryId}/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+  getPOD: (deliveryId) =>
+    apiClient.get(`/pod/${deliveryId}`),
+  verifyPOD: (deliveryId) =>
+    apiClient.put(`/pod/${deliveryId}/verify`),
+  rejectPOD: (deliveryId, reason) =>
+    apiClient.put(`/pod/${deliveryId}/reject`, { reason }),
+};
+
 export default apiClient;
